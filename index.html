@@ -262,46 +262,51 @@ function executeRebirth() {
     // 1. 게임 내 핵심 수치 초기화
     gold = 0; 
     stage = 1;
-    exp = 0;
-    level = 1;
+    // exp나 level 변수는 게임 루프에서 survival로 대체되므로 여기서 초기화 안 해도 됨
     
     // 2. 상점 영구 스탯 초기화
     perm = { atk: 0, hp: 0, spd: 0, reg: 0 }; 
     
-    // 3. 플레이어 스탯 재계산 (기본값으로)
-    // 이 부분은 귀하의 게임 엔진 설정에 따라 이름이 다를 수 있습니다.
-    // 보통 initGame() 또는 resetPlayer() 같은 함수가 있다면 여기서 호출하세요.
+    // 3. 저장 및 UI 갱신
+    save();          
+    updateMenuUI();  
     
-    save();          // 변경된 환생 횟수 저장
-    updateMenuUI();  // 메뉴 UI 업데이트
-    
-    alert("환생 완료! 메뉴에서 '진화 시작'을 눌러주세요.");
+    alert("환생 완료! 스탯이 초기화되고 골드 획득량이 증가했습니다.\n'진화 시작'을 눌러주세요.");
 }
         
 
         function startGame() {
-            document.getElementById('start-menu').style.display = 'none';
-            stage = 1; survival = 0; isBoss = false; frame = 0;
-            
-            // [신규] 스탯 적용 로직
-            pStats.atk = 30 + (perm.atk * 25); 
-            pStats.maxHp = 100 + (perm.hp * 60);
-            pStats.spd = 7 + (perm.spd * 0.8); // 속도 업그레이드 반영
-            pStats.reg = perm.reg * 0.5; // 레벨당 0.5 회복 (프레임 단위라 누적됨)
-            
-            pStats.hp = pStats.maxHp; pStats.multi = 1;
-            initStage(); gameRunning = true;
-            
-    // 시작 메뉴 숨기기
+    // 1. 메뉴 UI 숨기기
     document.getElementById('start-menu').style.display = 'none';
+    document.getElementById('ingame-shop').style.display = 'none'; // 혹시 켜져있을 상점도 끄기
+
+    // 2. 게임 변수 초기화
+    stage = 1; 
+    survival = 0; 
+    isBoss = false; 
+    frame = 0;
+    bossPhase = 0;
+    homingBullets = []; // 유도탄 배열 초기화
+
+    // 3. 스탯 재계산 (상점 업그레이드 반영)
+    pStats.atk = 30 + (perm.atk * 25); 
+    pStats.maxHp = 100 + (perm.hp * 60);
+    pStats.spd = 7 + (perm.spd * 0.8); 
+    pStats.reg = perm.reg * 0.5; 
     
-    // 게임 루프가 멈춰있다면 다시 실행 (예시)
-    if (!gameRunning) {
-        gameRunning = true;
-        update(); // 게임 메인 루프 실행
-    }
+    // 현재 체력을 최대 체력으로 회복
+    pStats.hp = pStats.maxHp; 
+    pStats.multi = 1;
+
+    // 4. 스테이지 물리 엔진 초기화
+    initStage(); 
+    
+    // 5. 게임 실행 플래그 켜기
+    // (gameLoop는 아래에서 이미 requestAnimationFrame으로 계속 돌고 있으므로, 
+    // 변수만 true로 바꿔주면 게임이 진행됩니다.)
+    gameRunning = true; 
 }
-        }
+        
 
         function initStage() {
             Composite.clear(engine.world);
@@ -602,5 +607,6 @@ function executeRebirth() {
 </body>
 
 </html>
+
 
 
