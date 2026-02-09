@@ -132,27 +132,6 @@
             }
         }
 
-        function evolve(type) {
-            if(type === 'sniper' || type === 'gatling' || type === 'destroyer') {
-                pStats.classType = type;
-                if(type === 'sniper') pStats.atk *= 2;
-                if(type === 'gatling') pStats.atk *= 0.3;
-                if(type === 'destroyer') pStats.atk *= 3;
-            } else if(type==='multi') pStats.multi++; 
-            else if(type==='damage') pStats.atk *= 1.4; 
-            else { pStats.maxHp += 150; pStats.hp = pStats.maxHp; }
-
-            stage++; 
-            document.getElementById('ingame-shop').style.display = 'none';
-            if(stage <= 10) { initStage(); gameRunning = true; } // Stage 10까지 확장
-            else { 
-                gameRunning = false; 
-                document.getElementById('stage-popup').innerText = "전설 달성!"; 
-                document.getElementById('stage-popup').style.display = 'block'; 
-                saveRanking(totalScore + gold); // 랭킹 저장
-                setTimeout(() => { document.getElementById('stage-popup').style.display = 'none'; document.getElementById('start-menu').style.display = 'flex'; updateMenuUI(); }, 3000); 
-            }
-        }
     <script>
         const { Engine, Render, Runner, Bodies, Composite, Vector, Body, Events } = Matter;
         const engine = Engine.create();
@@ -576,6 +555,7 @@
 </body>
 
 </html>
+
 
 
 
