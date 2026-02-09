@@ -291,6 +291,16 @@ function executeRebirth() {
             
             pStats.hp = pStats.maxHp; pStats.multi = 1;
             initStage(); gameRunning = true;
+            
+    // 시작 메뉴 숨기기
+    document.getElementById('start-menu').style.display = 'none';
+    
+    // 게임 루프가 멈춰있다면 다시 실행 (예시)
+    if (!gameRunning) {
+        gameRunning = true;
+        update(); // 게임 메인 루프 실행
+    }
+}
         }
 
         function initStage() {
@@ -592,6 +602,7 @@ function executeRebirth() {
 </body>
 
 </html>
+
 
 
 
