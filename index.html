@@ -108,33 +108,7 @@
         </div>
     </div>
      
-function applyRebirth() {
-    // 1차 환생은 기존대로 진행
-    if (rebirth === 0) {
-        if (!confirm("첫 번째 환생을 하시겠습니까? 골드 획득량이 2배가 됩니다!")) return;
-        doRebirth();
-    } 
-    // 2차 환생부터는 조건 검사
-    else {
-        const rebirthCost = 50000 * rebirth; // 갈수록 비싸지는 비용 예시
-        if (gold < rebirthCost) {
-            alert(`두 번째 환생부터는 강력한 에너지가 필요합니다!\n필요 골드: ${rebirthCost}G (현재: ${gold}G)`);
-            return;
-        }
-        
-        if (!confirm(`${rebirth + 1}번째 환생을 하시겠습니까?\n비용 ${rebirthCost}G가 소모됩니다.`)) return;
-        gold -= rebirthCost;
-        doRebirth();
-    }
-}
 
-// 환생 실행 공통 로직
-function doRebirth() {
-    rebirth++; 
-    perm = {atk:0, hp:0, spd:0, reg:0}; // 영구 스탯 초기화 (원치 않으면 이 줄 삭제)
-    save(); 
-    location.reload();
-}
 
     <script>
         const { Engine, Render, Runner, Bodies, Composite, Vector, Body, Events } = Matter;
@@ -559,6 +533,7 @@ function doRebirth() {
 </body>
 
 </html>
+
 
 
 
