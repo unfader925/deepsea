@@ -4,7 +4,1069 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3220268593593995"
      crossorigin="anonymous"></script>
     
+    <meta charset="UTF-8"> <!DOCTYPE html>
+
+<html>
+
+<head>
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3220268593593995"
+
+     crossorigin="anonymous"></script>
+
+    
+
     <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    
+
+    <title>DeepSea | 심해 탄막 슈팅 게임 - 무료 온라인 플레이</title>
+
+
+
+    <meta name="description" content="극한의 심해에서 펼쳐지는 탄막 슈팅! DeepSea14에서 강력한 적들을 물리치고 전 세계 플레이어와 기록을 겨뤄보세요. 설치 없이 브라우저에서 바로 즐길 수 있습니다.">
+
+
+
+    <meta name="keywords" content="탄막게임, 슈팅게임, 웹게임, DeepSea14, 무료게임, 인디게임, 심해게임">
+
+
+
+    <meta property="og:type" content="website">
+
+    <meta property="og:title" content="DeepSea14 - 심해 탄막의 정점">
+
+    <meta property="og:description" content="지금 바로 심해의 전투에 참여하세요! 기록 도전 시작!">
+
+    <meta property="og:image" content="https://내주소.com/og-image.png"> <meta property="og:url" content="https://deepsea.io.kr">
+
+
+
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+
+    <link rel="apple-touch-icon" href="logo192.png"> 
+
+        
+
+    <title>Ocean Evolution: Deep Sea Edition</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+
+    <style>
+
+        body { margin: 0; overflow: hidden; background: #00050a; font-family: 'Apple SD Gothic Neo', sans-serif; color: white; user-select: none; }
+
+        
+
+        /* UI 레이어 */
+
+        #ui { position: absolute; top: 110px; left: 20px; z-index: 500; pointer-events: none; }
+
+        .bar-container { margin-bottom: 8px; text-shadow: 1px 1px 2px black; font-size: 14px; }
+
+        .bar-bg { width: 300px; height: 16px; background: #222; border-radius: 4px; border: 1px solid #555; overflow: hidden; }
+
+        #hp-bar { width: 100%; height: 100%; background: #ff4757; transition: 0.1s; }
+
+        #exp-bar { width: 0%; height: 100%; background: #00f2fe; }
+
+        #skill-bar { width: 100%; height: 100%; background: #f1c40f; }
+
+        
+
+        #stat-info { position: absolute; top: 110px; right: 20px; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 10px; border: 1px solid #3498db; font-size: 13px; min-width: 150px; z-index: 500; }
+
+        .stat-line { margin: 5px 0; display: flex; justify-content: space-between; }
+
+        .stat-val { color: #00f2fe; font-weight: bold; }
+
+
+
+        #boss-ui { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: none; text-align: center; z-index: 500; }
+
+        #boss-hp-bar { width: 800px; height: 20px; background: #e74c3c; box-shadow: 0 0 20px #c0392b; }
+
+        
+
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 2000; }
+
+        .card { background: #1e272e; border: 2px solid #3498db; padding: 40px; border-radius: 20px; text-align: center; min-width: 600px; box-shadow: 0 0 50px rgba(0, 242, 254, 0.2); }
+
+        .btn { margin-top: 15px; padding: 12px 40px; font-size: 18px; background: #3498db; border: none; color: white; cursor: pointer; border-radius: 8px; font-weight: bold; transition: 0.2s; }
+
+        .btn:hover { background: #2980b9; transform: scale(1.05); }
+
+        .btn-rebirth { background: #e67e22; }
+
+        
+
+        /* 상점 그리드 확장 (2열) */
+
+        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+
+        .shop-item { background: #2c3e50; padding: 15px; cursor: pointer; border: 1px solid #555; border-radius: 8px; font-size: 15px; transition: 0.2s; }
+
+        .shop-item:hover { background: #f39c12; color: black; transform: translateY(-3px); }
+
+        .shop-item.max { background: #555; cursor: default; color: #888; transform: none; }
+
+
+
+        #stage-popup { position: absolute; top: 40%; width: 100%; text-align: center; font-size: 60px; font-weight: bold; display: none; text-shadow: 0 0 30px black; z-index: 1500; pointer-events: none; }
+
+        #skill-desc { margin-top: 10px; color: #f1c40f; font-size: 14px; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 5px; }
+
+    </style>
+
+</head>
+
+<body>
+
+
+
+    <div id="ui">
+
+        <h2 id="stage-text">STAGE 1</h2>
+
+        <div id="gold-ui" style="color: gold; font-size: 18px; margin-bottom: 5px;">GOLD: 0</div>
+
+        <div class="bar-container">HP <div class="bar-bg"><div id="hp-bar"></div></div></div>
+
+        <div class="bar-container">EVOLUTION <div class="bar-bg"><div id="exp-bar"></div></div></div>
+
+        <div class="bar-container">SKILL <div class="bar-bg"><div id="skill-bar"></div></div></div>
+
+        <div id="skill-desc"></div>
+
+    </div>
+
+
+
+    <div id="stat-info">
+
+        <div style="color:#3498db; font-weight:bold; border-bottom:1px solid #333; margin-bottom:8px;">INFO</div>
+
+        <div class="stat-line">공격력 <span id="info-atk" class="stat-val">30</span></div>
+
+        <div class="stat-line">최대 체력 <span id="info-hp" class="stat-val">100</span></div>
+
+        <div class="stat-line">이동 속도 <span id="info-spd" class="stat-val">7</span></div>
+
+        <div class="stat-line">자동 회복 <span id="info-reg" class="stat-val">0</span></div>
+
+        <div class="stat-line" style="margin-top:5px; border-top:1px solid #444; padding-top:5px;">환생 횟수 <span id="info-rebirth" class="stat-val">0</span></div>
+
+        <div class="stat-line">골드 배율 <span id="info-ratio" class="stat-val">x1</span></div>
+
+    </div>
+
+
+
+    <div id="boss-ui"><h2 id="boss-name">BOSS</h2><div class="bar-bg" style="width: 800px;"><div id="boss-hp-bar"></div></div></div>
+
+    <div id="stage-popup"></div>
+
+
+
+    <div id="start-menu" class="overlay">
+
+        <div class="card">
+
+            <h1 style="color:#00f2fe; text-shadow: 0 0 10px #00f2fe;">OCEAN EVOLUTION</h1>
+
+            <p>V9: Deep Sea Edition (파티클 & 배경 & 상점 확장)</p>
+
+            <div class="shop-grid">
+
+                <div class="shop-item" id="buy-atk" onclick="buyPerm('atk')">공격력 Lv.0</div>
+
+                <div class="shop-item" id="buy-hp" onclick="buyPerm('hp')">체력 Lv.0</div>
+
+                <div class="shop-item" id="buy-spd" onclick="buyPerm('spd')">이동 속도 Lv.0</div>
+
+                <div class="shop-item" id="buy-reg" onclick="buyPerm('reg')">자동 회복 Lv.0</div>
+
+            </div>
+
+            <p id="menu-gold" style="color:gold; margin-top:20px; font-size: 20px;">GOLD: 0</p>
+
+            <button class="btn" onclick="startGame()">진화 시작</button>
+
+            <button id="rebirth-btn" class="btn btn-rebirth" style="display:none;" onclick="applyRebirth()">환생하기 (스탯 리셋 & 골드 x2)</button>
+
+        </div>
+
+    </div>
+
+
+
+    <div id="ingame-shop" class="overlay" style="display:none;">
+
+        <div class="card">
+
+            <h2 style="color:yellow">진화 선택</h2>
+
+            <div class="shop-grid" style="grid-template-columns: 1fr;">
+
+                <div class="shop-item" onclick="evolve('multi')">멀티샷 +1</div>
+
+                <div class="shop-item" onclick="evolve('damage')">공격력 +40%</div>
+
+                <div class="shop-item" onclick="evolve('heal')">HP 완전회복 & 최대치 상승</div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <script>
+
+        const { Engine, Render, Runner, Bodies, Composite, Vector, Body, Events } = Matter;
+
+        const engine = Engine.create();
+
+        engine.gravity.y = 0;
+
+
+
+        const render = Render.create({ 
+
+            element: document.body, engine: engine, 
+
+            options: { 
+
+                width: window.innerWidth, height: window.innerHeight, 
+
+                wireframes: false, background: '#00050a' // 매우 어두운 심해 색
+
+            } 
+
+        });
+
+
+
+        // --- 배경 기포 시스템 ---
+
+        const bubbles = [];
+
+        for(let i=0; i<40; i++) {
+
+            bubbles.push({
+
+                x: Math.random() * window.innerWidth,
+
+                y: Math.random() * window.innerHeight,
+
+                r: Math.random() * 3 + 1,
+
+                speed: Math.random() * 1 + 0.5,
+
+                opacity: Math.random() * 0.3 + 0.1
+
+            });
+
+        }
+
+
+
+        // 렌더링 후 캔버스에 직접 그리기 (Matter.js 렌더링 위에 덧칠)
+
+        Events.on(render, 'afterRender', function() {
+
+            const ctx = render.context;
+
+            ctx.beginPath();
+
+            for(let b of bubbles) {
+
+                b.y -= b.speed;
+
+                if(b.y < -10) { b.y = window.innerHeight + 10; b.x = Math.random() * window.innerWidth; }
+
+                
+
+                // 기포 그리기
+
+                ctx.globalAlpha = b.opacity;
+
+                ctx.fillStyle = '#00f2fe';
+
+                ctx.beginPath();
+
+                ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+
+                ctx.fill();
+
+            }
+
+            ctx.globalAlpha = 1; // 투명도 복구
+
+        });
+
+
+
+        const STAGES = {
+
+            1: { name: "해파리", color: '#00d2ff', bColor: '#Ffffff', bName: "일렉트로 젤리", skill: "EMP (1초 무적 포함)" },
+
+            2: { name: "꽃게", color: '#ff4757', bColor: '#e74c3c', bName: "대게 장군", skill: "단단한 등껍질 (3초 무적)" },
+
+            3: { name: "복어", color: '#f1c40f', bColor: '#d35400', bName: "맹독 복어왕", skill: "가시 지옥 (60발 유도 + 1초 무적)" },
+
+            4: { name: "상어", color: '#bdc3c7', bColor: '#34495e', bName: "메갈로돈", skill: "크림슨 바이트 (레이저 + 1초 무적)" },
+
+            5: { name: "대왕오징어", color: '#9b59b6', bColor: '#8e44ad', bName: "크라켄", skill: "심해 먹물 (슬로우 + 1초 무적)" },
+
+            6: { name: "대왕고래", color: '#3498db', bColor: '#2980b9', bName: "모비딕", skill: "고래의 노래 (광역기 + 1초 무적)" }
+
+        };
+
+
+
+        let player, boss, stage = 1, gold = 0, gameRunning = false, isBoss = false;
+
+        let pStats = { hp: 100, maxHp: 100, atk: 30, spd: 7, multi: 1, inv: false, reg: 0 };
+
+        // [신규] spd(속도), reg(회복) 영구 스탯 추가
+
+        let perm = { atk: 0, hp: 0, spd: 0, reg: 0 }, rebirth = 0;
+
+        let survival = 0, skillCool = 0, frame = 0;
+
+        let keys = {}, isFiring = false, mousePos = {x:0, y:0};
+
+        let homingBullets = [];
+
+        let bossPhase = 0;
+
+
+
+        function save() { localStorage.setItem('ocean_save_v9', JSON.stringify({ gold, perm, rebirth })); }
+
+        function load() {
+
+            const data = JSON.parse(localStorage.getItem('ocean_save_v9'));
+
+            if(data) { 
+
+                gold = data.gold || 0; 
+
+                perm = data.perm || {atk:0, hp:0, spd:0, reg:0}; 
+
+                // 이전 저장 데이터 호환성 체크
+
+                if(perm.spd === undefined) perm.spd = 0;
+
+                if(perm.reg === undefined) perm.reg = 0;
+
+                rebirth = data.rebirth || 0; 
+
+            }
+
+            updateMenuUI();
+
+        }
+
+
+
+        function updateMenuUI() {
+
+            document.getElementById('menu-gold').innerText = `GOLD: ${gold}`;
+
+            document.getElementById('info-rebirth').innerText = rebirth;
+
+            document.getElementById('info-ratio').innerText = `x${Math.pow(2, rebirth)}`;
+
+            
+
+            const updateBtn = (id, type, baseCost, incCost, name) => {
+
+                const cost = baseCost + (perm[type] * incCost);
+
+                const btn = document.getElementById(id);
+
+                if(perm[type] >= 5) { btn.innerText = `${name} Lv.MAX`; btn.className = "shop-item max"; }
+
+                else { btn.innerText = `${name} Lv.${perm[type]} (${cost}G)`; btn.className = "shop-item"; }
+
+            };
+
+
+
+            updateBtn('buy-atk', 'atk', 1000, 500, "공격력");
+
+            updateBtn('buy-hp', 'hp', 1000, 500, "체력");
+
+            updateBtn('buy-spd', 'spd', 1500, 1000, "속도");
+
+            updateBtn('buy-reg', 'reg', 3000, 2000, "회복");
+
+
+
+            if(stage > 6 || rebirth > 0) document.getElementById('rebirth-btn').style.display = 'block';
+
+        }
+
+
+
+        function buyPerm(type) {
+
+            if(perm[type] >= 5) return;
+
+            const base = (type === 'spd') ? 1500 : (type === 'reg' ? 3000 : 1000);
+
+            const inc = (type === 'spd') ? 1000 : (type === 'reg' ? 2000 : 500);
+
+            const cost = base + (perm[type] * inc);
+
+            
+
+            if(gold >= cost) { gold -= cost; perm[type]++; save(); updateMenuUI(); }
+
+        }
+
+
+
+        function applyRebirth() {
+
+            if(!confirm("환생하시겠습니까? 골드 획득량이 2배가 됩니다!")) return;
+
+            rebirth++; perm = {atk:0, hp:0, spd:0, reg:0}; save(); location.reload();
+
+        }
+
+
+
+        function startGame() {
+
+            document.getElementById('start-menu').style.display = 'none';
+
+            stage = 1; survival = 0; isBoss = false; frame = 0;
+
+            
+
+            // [신규] 스탯 적용 로직
+
+            pStats.atk = 30 + (perm.atk * 25); 
+
+            pStats.maxHp = 100 + (perm.hp * 60);
+
+            pStats.spd = 7 + (perm.spd * 0.8); // 속도 업그레이드 반영
+
+            pStats.reg = perm.reg * 0.5; // 레벨당 0.5 회복 (프레임 단위라 누적됨)
+
+            
+
+            pStats.hp = pStats.maxHp; pStats.multi = 1;
+
+            initStage(); gameRunning = true;
+
+        }
+
+
+
+        function initStage() {
+
+            Composite.clear(engine.world);
+
+            isBoss = false; boss = null; survival = 0; homingBullets = []; bossPhase = 0;
+
+            player = Bodies.circle(window.innerWidth/2, window.innerHeight/2, 22, { 
+
+                label:'player', frictionAir: 0.05, 
+
+                render: { fillStyle: STAGES[stage].color, strokeStyle: '#fff', lineWidth: 3 } 
+
+            });
+
+            Composite.add(engine.world, player);
+
+            document.getElementById('stage-text').innerText = `STAGE ${stage}: ${STAGES[stage].name}`;
+
+            document.getElementById('skill-desc').innerText = `스킬: ${STAGES[stage].skill}`;
+
+            document.getElementById('stage-text').style.color = STAGES[stage].color;
+
+            document.getElementById('boss-ui').style.display = 'none';
+
+            updateGameUI();
+
+        }
+
+
+
+        function updateGameUI() {
+
+            document.getElementById('gold-ui').innerText = `GOLD: ${gold}`;
+
+            document.getElementById('hp-bar').style.width = (pStats.hp/pStats.maxHp*100)+'%';
+
+            document.getElementById('info-atk').innerText = Math.floor(pStats.atk);
+
+            document.getElementById('info-hp').innerText = Math.floor(pStats.maxHp);
+
+            document.getElementById('info-spd').innerText = pStats.spd.toFixed(1);
+
+            document.getElementById('info-reg').innerText = (pStats.reg * 60).toFixed(1) + "/sec"; // 초당 회복량 표시
+
+        }
+
+
+
+        // [신규] 보스 폭발 이펙트 함수
+
+        function spawnExplosion(x, y, color) {
+
+            for(let i=0; i<30; i++) {
+
+                const size = Math.random() * 10 + 5;
+
+                const p = Bodies.rectangle(x, y, size, size, {
+
+                    label: 'effect', isSensor: true, frictionAir: 0.02,
+
+                    render: { fillStyle: color }
+
+                });
+
+                const force = 15;
+
+                Body.setVelocity(p, {
+
+                    x: (Math.random() - 0.5) * force * 2,
+
+                    y: (Math.random() - 0.5) * force * 2
+
+                });
+
+                // 회전력 추가
+
+                Body.setAngularVelocity(p, Math.random() * 0.5);
+
+                Composite.add(engine.world, p);
+
+                
+
+                // 1.5초 후 제거
+
+                setTimeout(() => Composite.remove(engine.world, p), 1500);
+
+            }
+
+        }
+
+
+
+        function gameLoop() {
+
+            if(gameRunning && player) {
+
+                frame++;
+
+                
+
+                // 이동 & 클램핑
+
+                let vx = 0, vy = 0;
+
+                if(keys['KeyW']) vy = -pStats.spd; if(keys['KeyS']) vy = pStats.spd;
+
+                if(keys['KeyA']) vx = -pStats.spd; if(keys['KeyD']) vx = pStats.spd;
+
+                Body.setVelocity(player, {x: vx, y: vy});
+
+                Body.setPosition(player, {
+
+                    x: Math.min(Math.max(player.position.x, 22), window.innerWidth - 22),
+
+                    y: Math.min(Math.max(player.position.y, 22), window.innerHeight - 22)
+
+                });
+
+
+
+                // [신규] 자동 회복 로직 (60프레임 기준)
+
+                if(pStats.reg > 0 && pStats.hp < pStats.maxHp) {
+
+                    pStats.hp = Math.min(pStats.maxHp, pStats.hp + pStats.reg/60);
+
+                    if(frame % 30 === 0) updateGameUI(); // UI 업데이트는 가끔씩
+
+                }
+
+
+
+                if(skillCool > 0) {
+
+                    skillCool--;
+
+                    document.getElementById('skill-bar').style.width = (100 - (skillCool/400*100))+'%';
+
+                } else document.getElementById('skill-bar').style.width = '100%';
+
+
+
+                updateHoming();
+
+
+
+                if(!isBoss) {
+
+                    survival += 0.08;
+
+                    document.getElementById('exp-bar').style.width = Math.min(survival, 100) + '%';
+
+                    if(frame % 35 === 0) spawnRandomBullet(4, 3);
+
+                    if(frame % 90 === 0) spawnAimedBullet();
+
+                    if(frame % 150 === 0) spawnCircleBurst();
+
+                    if(frame % 500 === 0) spawnRecoveryItem();
+
+                    if(survival >= 100) triggerBoss();
+
+                } else if(boss) {
+
+                    updateBossUniquePattern();
+
+                }
+
+                if(isFiring && frame % 10 === 0) fireBullet();
+
+            }
+
+            Engine.update(engine, 1000/60);
+
+            requestAnimationFrame(gameLoop);
+
+        }
+
+
+
+        function updateBossUniquePattern() {
+
+            if(!boss) return;
+
+            bossPhase++;
+
+            if(stage !== 4) {
+
+                Body.setPosition(boss, {
+
+                    x: window.innerWidth/2 + Math.sin(bossPhase/50) * 350,
+
+                    y: 150 + Math.sin(bossPhase/15) * 60
+
+                });
+
+            }
+
+            const difficultyMult = stage === 1 ? 1 : 1.8; 
+
+
+
+            switch(stage) {
+
+                case 1: 
+
+                    if(bossPhase % 20 === 0) createBullet(boss.position.x, boss.position.y, (Math.random()-0.5)*10, 8, '#ffff00');
+
+                    break;
+
+                case 2: 
+
+                    if(bossPhase % Math.floor(10/difficultyMult) === 0) {
+
+                        const x = Math.random() * window.innerWidth;
+
+                        const coconut = Bodies.circle(x, -50, 15, { label:'eb', isSensor:true, frictionAir:0, render:{fillStyle:'#8d6e63'} });
+
+                        Body.setVelocity(coconut, {x:0, y: 7 * difficultyMult}); 
+
+                        Composite.add(engine.world, coconut);
+
+                        setTimeout(()=>{ if(coconut) Composite.remove(engine.world, coconut) }, 4000);
+
+                    }
+
+                    break;
+
+                case 3: 
+
+                    if(bossPhase % 100 === 0) {
+
+                        const gas = Bodies.circle(player.position.x, player.position.y, 70, { label:'eb', isSensor:true, isStatic:true, render:{fillStyle:'rgba(0, 255, 0, 0.4)'} });
+
+                        Composite.add(engine.world, gas);
+
+                        setTimeout(() => Composite.remove(engine.world, gas), 4000);
+
+                    }
+
+                    if(bossPhase % Math.floor(25/difficultyMult) === 0) {
+
+                        for(let i=0; i<12; i++) {
+
+                            const a = (Math.PI*2/12)*i + bossPhase;
+
+                            createBullet(boss.position.x, boss.position.y, Math.cos(a)*9*difficultyMult, Math.sin(a)*9*difficultyMult, '#f1c40f');
+
+                        }
+
+                    }
+
+                    break;
+
+                case 4: 
+
+                    const angle = Vector.angle(boss.position, player.position);
+
+                    const speed = Vector.magnitude(Vector.sub(player.position, boss.position)) > 100 ? 11 * difficultyMult : 0;
+
+                    Body.setVelocity(boss, { x: Math.cos(angle)*speed, y: Math.sin(angle)*speed });
+
+                    boss.angle = angle;
+
+                    if(bossPhase % Math.floor(35/difficultyMult) === 0) createBullet(boss.position.x, boss.position.y, Math.cos(angle)*18, Math.sin(angle)*18, '#c0392b');
+
+                    break;
+
+                case 5: 
+
+                    const cycle = bossPhase % 300;
+
+                    if(cycle < 150) { 
+
+                        boss.render.opacity = 1;
+
+                        if(cycle % 15 === 0) createBullet(boss.position.x, boss.position.y, (Math.random()-0.5)*12, 8, '#000');
+
+                    } else if(cycle < 250) { 
+
+                        boss.render.opacity = 0.1;
+
+                        Body.setPosition(boss, {x: Math.random()*window.innerWidth, y: Math.random()*300});
+
+                    } else if(cycle === 250) { 
+
+                        boss.render.opacity = 1;
+
+                        for(let i=0; i<36; i++) { const a = (Math.PI*2/36)*i; createBullet(boss.position.x, boss.position.y, Math.cos(a)*12, Math.sin(a)*12, '#9b59b6'); }
+
+                    }
+
+                    break;
+
+                case 6: 
+
+                    Body.applyForce(player, player.position, Vector.mult(Vector.normalise(Vector.sub(boss.position, player.position)), 0.002));
+
+                    if(bossPhase % 100 === 0) {
+
+                        const fromLeft = Math.random() > 0.5;
+
+                        const vx = fromLeft ? 6 : -6;
+
+                        for(let i=0; i<18; i++) {
+
+                            const wave = Bodies.rectangle(fromLeft ? -50 : window.innerWidth+50, i*(window.innerHeight/18)+20, 50, 50, { label:'eb', isSensor:true, frictionAir:0, render:{fillStyle:'#3498db'} });
+
+                            Body.setVelocity(wave, {x: vx, y: 0});
+
+                            Composite.add(engine.world, wave);
+
+                            setTimeout(()=>Composite.remove(engine.world, wave), 6000);
+
+                        }
+
+                    }
+
+                    break;
+
+            }
+
+        }
+
+
+
+        function createBullet(x, y, vx, vy, color, label='eb') {
+
+            const b = Bodies.circle(x, y, 8, { label: label, isSensor: true, frictionAir: 0, friction: 0, render: { fillStyle: color } });
+
+            Body.setVelocity(b, {x: vx, y: vy});
+
+            Composite.add(engine.world, b);
+
+            setTimeout(() => { if(b) Composite.remove(engine.world, b); }, 8000);
+
+            return b;
+
+        }
+
+
+
+        function spawnRandomBullet(spd, count) {
+
+            for(let i=0; i<count; i++) createBullet(Math.random()*window.innerWidth, -20, (Math.random()-0.5)*spd, spd, STAGES[stage].color);
+
+        }
+
+        function spawnAimedBullet() {
+
+            const spd = 5 + stage;
+
+            const x = Math.random() > 0.5 ? -20 : window.innerWidth + 20;
+
+            const y = Math.random() * window.innerHeight * 0.5;
+
+            const angle = Vector.angle({x:x, y:y}, player.position);
+
+            createBullet(x, y, Math.cos(angle)*spd, Math.sin(angle)*spd, STAGES[stage].color);
+
+        }
+
+        function spawnCircleBurst() {
+
+            const x = Math.random() * window.innerWidth;
+
+            for(let i=0; i<12; i++) { const a = (Math.PI*2/12)*i; createBullet(x, -20, Math.cos(a)*4, Math.sin(a)*4, STAGES[stage].color); }
+
+        }
+
+
+
+        function triggerBoss() {
+
+            if(isBoss) return;
+
+            isBoss = true;
+
+            const p = document.getElementById('stage-popup');
+
+            p.innerText = STAGES[stage].bName + " 등장!"; p.style.display = 'block'; p.style.color = STAGES[stage].bColor;
+
+            setTimeout(() => {
+
+                p.style.display = 'none';
+
+                boss = Bodies.rectangle(window.innerWidth/2, 150, 150, 150, { label:'boss', isStatic: stage !== 4, isSensor: true, render:{fillStyle: STAGES[stage].bColor, strokeStyle:'#fff', lineWidth:4} });
+
+                boss.maxHp = (stage === 1 ? 800 : 5000 * stage) * (stage === 1 ? 1 : 2);
+
+                boss.hp = boss.maxHp;
+
+                Composite.add(engine.world, boss);
+
+                document.getElementById('boss-ui').style.display = 'block';
+
+                document.getElementById('boss-name').innerText = STAGES[stage].bName;
+
+            }, 1500);
+
+        }
+
+
+
+        function fireBullet() {
+
+            const angle = Vector.angle(player.position, mousePos);
+
+            for(let i=0; i<pStats.multi; i++) {
+
+                const b = Bodies.circle(player.position.x, player.position.y, 7, { label:'pb', isSensor:true, frictionAir: 0, render:{fillStyle:'#fff'} });
+
+                const a = angle + (i - (pStats.multi-1)/2) * 0.15;
+
+                Body.setVelocity(b, {x:Math.cos(a)*20, y:Math.sin(a)*20});
+
+                Composite.add(engine.world, b);
+
+                setTimeout(()=>Composite.remove(engine.world, b), 1200);
+
+            }
+
+        }
+
+
+
+        function updateHoming() {
+
+            for (let i = homingBullets.length - 1; i >= 0; i--) {
+
+                const b = homingBullets[i];
+
+                if (!b.body || !engine.world.bodies.includes(b.body)) { homingBullets.splice(i, 1); continue; }
+
+                const angle = Vector.angle(b.body.position, boss ? boss.position : mousePos);
+
+                Body.setVelocity(b.body, { x: Math.cos(angle)*18, y: Math.sin(angle)*18 });
+
+            }
+
+        }
+
+
+
+        function useSkill() {
+
+            if(skillCool > 0 || !gameRunning) return;
+
+            skillCool = 400;
+
+            if(stage !== 2) { pStats.inv = true; player.render.opacity = 0.5; setTimeout(() => { pStats.inv = false; player.render.opacity = 1; }, 1000); }
+
+
+
+            if(stage === 1) { Composite.allBodies(engine.world).forEach(b => { if(b.label==='eb') Composite.remove(engine.world, b); }); }
+
+            else if(stage === 2) { pStats.inv = true; player.render.opacity = 0.5; setTimeout(() => { pStats.inv = false; player.render.opacity = 1; }, 3000); }
+
+            else if(stage === 3) {
+
+                for(let i=0; i<60; i++) {
+
+                    const b = Bodies.circle(player.position.x+(Math.random()-0.5)*40, player.position.y+(Math.random()-0.5)*40, 8, { label:'pb', isSensor:true, render:{fillStyle:'#f1c40f'} });
+
+                    Body.setVelocity(b, {x:Math.cos((Math.PI*2/60)*i)*12, y:Math.sin((Math.PI*2/60)*i)*12});
+
+                    Composite.add(engine.world, b); homingBullets.push({ body: b });
+
+                    setTimeout(()=>Composite.remove(engine.world, b), 3500);
+
+                }
+
+            } else if(stage === 4) {
+
+                const angle = Vector.angle(player.position, mousePos);
+
+                const laser = Bodies.rectangle(player.position.x+Math.cos(angle)*200, player.position.y+Math.sin(angle)*200, 400, 40, { label:'laser', isSensor:true, isStatic:true, angle: angle, render:{fillStyle:'#e74c3c'} });
+
+                Composite.add(engine.world, laser); setTimeout(() => Composite.remove(engine.world, laser), 200);
+
+            } else if(stage === 5) { Composite.allBodies(engine.world).forEach(b => { if(b.label==='eb') Body.setVelocity(b, Vector.mult(b.velocity, 0.05)); }); }
+
+            else if(stage === 6) { if(boss) boss.hp -= 10000; Composite.allBodies(engine.world).forEach(b => { if(b.label==='eb') Composite.remove(engine.world, b); }); }
+
+        }
+
+
+
+        function evolve(type) {
+
+            if(type==='multi') pStats.multi++; else if(type==='damage') pStats.atk *= 1.4; else { pStats.maxHp += 150; pStats.hp = pStats.maxHp; }
+
+            stage++; document.getElementById('ingame-shop').style.display = 'none';
+
+            if(stage <= 6) { initStage(); gameRunning = true; }
+
+            else { gameRunning = false; document.getElementById('stage-popup').innerText = "심해 정복 성공!"; document.getElementById('stage-popup').style.display = 'block'; setTimeout(() => { document.getElementById('stage-popup').style.display = 'none'; document.getElementById('start-menu').style.display = 'flex'; updateMenuUI(); }, 3000); }
+
+        }
+
+
+
+        function spawnRecoveryItem() { const item = Bodies.circle(Math.random()*window.innerWidth, Math.random()*window.innerHeight, 15, { label:'item', isSensor:true, render:{fillStyle:'#2ecc71', strokeStyle:'#fff', lineWidth:2} }); Composite.add(engine.world, item); }
+
+
+
+        Events.on(engine, 'collisionStart', (e) => {
+
+            e.pairs.forEach(p => {
+
+                const labels = [p.bodyA.label, p.bodyB.label];
+
+                if(labels.includes('player') && (labels.includes('eb') || labels.includes('boss')) && !pStats.inv) {
+
+                    const enemy = (p.bodyA.label === 'eb' || p.bodyA.label === 'boss') ? p.bodyA : p.bodyB;
+
+                    if(enemy.label === 'eb') Composite.remove(engine.world, enemy);
+
+                    pStats.hp -= 15; updateGameUI();
+
+                    if(pStats.hp <= 0) { gameRunning = false; save(); alert("게임 오버!"); document.getElementById('start-menu').style.display = 'flex'; updateMenuUI(); }
+
+                }
+
+                if(labels.includes('player') && labels.includes('item')) { Composite.remove(engine.world, p.bodyA.label === 'item' ? p.bodyA : p.bodyB); pStats.hp = Math.min(pStats.maxHp, pStats.hp + 50); updateGameUI(); }
+
+                if(labels.includes('boss')) {
+
+                    let d = labels.includes('pb') ? pStats.atk : (labels.includes('laser') ? pStats.atk * 20 : 0);
+
+                    if(labels.includes('pb')) Composite.remove(engine.world, p.bodyA.label === 'pb' ? p.bodyA : p.bodyB);
+
+                    if(boss && d > 0) {
+
+                        boss.hp -= d; document.getElementById('boss-hp-bar').style.width = Math.max(0, (boss.hp/boss.maxHp*100))+'%';
+
+                        if(boss.hp <= 0) { 
+
+                            // [신규] 보스 처치 이펙트 발동
+
+                            spawnExplosion(boss.position.x, boss.position.y, boss.render.fillStyle);
+
+                            gold += Math.floor((3000 * stage) * Math.pow(2, rebirth)); save(); 
+
+                            Composite.remove(engine.world, boss); boss = null; 
+
+                            // 잠시 이펙트 감상 시간을 줌 (0.5초 딜레이)
+
+                            setTimeout(() => { gameRunning = false; document.getElementById('ingame-shop').style.display = 'flex'; }, 500);
+
+                        }
+
+                    }
+
+                }
+
+            });
+
+        });
+
+
+
+        window.addEventListener('keydown', e => { keys[e.code]=true; if(e.code==='Space') useSkill(); });
+
+        window.addEventListener('keyup', e => keys[e.code]=false);
+
+        window.addEventListener('mousedown', () => isFiring=true);
+
+        window.addEventListener('mouseup', () => isFiring=false);
+
+        window.addEventListener('mousemove', e => mousePos = {x:e.clientX, y:e.clientY});
+
+
+
+        Render.run(render);
+
+        load(); gameLoop();
+
+    </script>
+
+    <footer style="margin-top: 50px; border-top: 1px solid #ccc; padding: 20px; text-align: center;">
+
+    <p>© 2026 DeepSea14 Project</p>
+
+    <a href="guide.html">게임 가이드</a> | 
+
+    <a href="updates.html">업데이트 소식</a> | 
+
+    <a href="privacy.html">개인정보 처리방침</a>
+
+</footer>
+
+</body>
+
+
+
+</html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <title>DeepSea | 심해 탄막 슈팅 게임 - 무료 온라인 플레이</title>
