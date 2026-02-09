@@ -187,6 +187,25 @@
         }
 
         function updateMenuUI() {
+    // 기존의 골드, 환생 횟수 표시 코드들...
+    document.getElementById('menu-gold').innerText = `GOLD: ${gold}`;
+    document.getElementById('info-rebirth').innerText = rebirth;
+
+    const rbBtn = document.getElementById('rebirth-btn');
+
+    // 특정 스테이지(예: 6) 이상이거나 이미 환생을 한 번이라도 했다면 버튼 표시
+    if (stage > 6 || rebirth > 0) {
+        rbBtn.style.display = 'block';
+
+        if (rebirth === 0) {
+            rbBtn.innerText = "첫 환생하기 (무료 & 골드 x2)";
+            rbBtn.style.background = "#2ecc71"; // 첫 환생은 초록색
+        } else {
+            rbBtn.innerText = `고급 환생 (비용: 50,000G)`;
+            rbBtn.style.background = "#e74c3c"; // 2회차부터는 빨간색 (또는 다른색)
+        }
+    }
+
             document.getElementById('menu-gold').innerText = `GOLD: ${gold}`;
             document.getElementById('info-rebirth').innerText = rebirth;
             document.getElementById('info-ratio').innerText = `x${Math.pow(2, rebirth)}`;
@@ -215,9 +234,37 @@
             if(gold >= cost) { gold -= cost; perm[type]++; save(); updateMenuUI(); }
         }
 
-        function applyRebirth() {
-            if(!confirm("환생하시겠습니까? 골드 획득량이 2배가 됩니다!")) return;
-            rebirth++; perm = {atk:0, hp:0, spd:0, reg:0}; save(); location.reload();
+            function applyRebirth() {
+    // 1. 첫 환생인 경우 (rebirth가 0일 때)
+    if (rebirth === 0) {
+        if (!confirm("첫 환생을 하시겠습니까?\n모든 스탯이 초기화되지만 골드 획득량이 2배가 됩니다!")) return;
+        executeRebirth();
+    } 
+    // 2. 두 번째 환생부터 (rebirth가 1 이상일 때)
+    else {
+        const requiredGold = 50000; // 2회차 환생에 필요한 골드량
+        
+        if (gold < requiredGold) {
+            alert(`환생 조건 미달! 최소 ${requiredGold}G가 필요합니다.\n(현재 보유: ${gold}G)`);
+            return;
+        }
+
+        if (!confirm(`고급 환생을 하시겠습니까?\n비용 ${requiredGold}G가 소모되며 골드 획득량이 추가로 증가합니다.`)) return;
+        
+        gold -= requiredGold; // 골드 차감
+        executeRebirth();
+    }
+}
+
+// 환생 실행 공통 로직 (버그 방지를 위해 분리)
+function executeRebirth() {
+    rebirth++;
+    // 상점 강화 스탯 초기화 (원치 않으면 아래 perm 라인만 삭제하세요)
+    perm = { atk: 0, hp: 0, spd: 0, reg: 0 }; 
+    
+    save(); // 변경사항 저장
+    location.reload(); // 페이지 새로고침으로 데이터 적용
+}
         }
 
         function startGame() {
@@ -533,6 +580,7 @@
 </body>
 
 </html>
+
 
 
 
