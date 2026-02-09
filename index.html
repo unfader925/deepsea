@@ -107,7 +107,52 @@
             </div>
         </div>
     </div>
+// 진화 상점 (V10: 클래스 시스템 통합)
+        function showShop() {
+            gameRunning = false;
+            const shopDiv = document.getElementById('ingame-shop');
+            const optionsDiv = document.getElementById('shop-options');
+            shopDiv.style.display = 'flex';
+            
+            // 스테이지 2 클리어 시 클래스 선택
+            if(stage === 2) {
+                document.getElementById('shop-title').innerText = "클래스 전직";
+                optionsDiv.innerHTML = `
+                    <div class="shop-item" onclick="evolve('sniper')">🔫 스나이퍼 (한방, 관통, 초고속)</div>
+                    <div class="shop-item" onclick="evolve('gatling')">🌪️ 개틀링 (연사, 산탄)</div>
+                    <div class="shop-item" onclick="evolve('destroyer')">💣 디스트로이어 (거대 탄환, 범위)</div>
+                `;
+            } else {
+                document.getElementById('shop-title').innerText = "능력 강화";
+                optionsDiv.innerHTML = `
+                    <div class="shop-item" onclick="evolve('multi')">✨ 멀티샷 +1</div>
+                    <div class="shop-item" onclick="evolve('damage')">⚔️ 공격력 +40%</div>
+                    <div class="shop-item" onclick="evolve('heal')">❤️ 완전 회복 & 최대체력 UP</div>
+                `;
+            }
+        }
 
+        function evolve(type) {
+            if(type === 'sniper' || type === 'gatling' || type === 'destroyer') {
+                pStats.classType = type;
+                if(type === 'sniper') pStats.atk *= 2;
+                if(type === 'gatling') pStats.atk *= 0.3;
+                if(type === 'destroyer') pStats.atk *= 3;
+            } else if(type==='multi') pStats.multi++; 
+            else if(type==='damage') pStats.atk *= 1.4; 
+            else { pStats.maxHp += 150; pStats.hp = pStats.maxHp; }
+
+            stage++; 
+            document.getElementById('ingame-shop').style.display = 'none';
+            if(stage <= 10) { initStage(); gameRunning = true; } // Stage 10까지 확장
+            else { 
+                gameRunning = false; 
+                document.getElementById('stage-popup').innerText = "전설 달성!"; 
+                document.getElementById('stage-popup').style.display = 'block'; 
+                saveRanking(totalScore + gold); // 랭킹 저장
+                setTimeout(() => { document.getElementById('stage-popup').style.display = 'none'; document.getElementById('start-menu').style.display = 'flex'; updateMenuUI(); }, 3000); 
+            }
+        }
     <script>
         const { Engine, Render, Runner, Bodies, Composite, Vector, Body, Events } = Matter;
         const engine = Engine.create();
@@ -158,6 +203,7 @@
             4: { name: "상어", color: '#bdc3c7', bColor: '#34495e', bName: "메갈로돈", skill: "크림슨 바이트 (레이저 + 1초 무적)" },
             5: { name: "대왕오징어", color: '#9b59b6', bColor: '#8e44ad', bName: "크라켄", skill: "심해 먹물 (슬로우 + 1초 무적)" },
             6: { name: "대왕고래", color: '#3498db', bColor: '#2980b9', bName: "모비딕", skill: "고래의 노래 (광역기 + 1초 무적)" }
+             //7메갈로돈,8모사사우르스9크라켄10레비아탄
         };
 
         let player, boss, stage = 1, gold = 0, gameRunning = false, isBoss = false;
@@ -530,6 +576,7 @@
 </body>
 
 </html>
+
 
 
 
