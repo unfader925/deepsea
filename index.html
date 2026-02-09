@@ -256,16 +256,28 @@
     }
 }
 
-// 환생 실행 공통 로직 (버그 방지를 위해 분리)
 function executeRebirth() {
-    rebirth++;
-    // 상점 강화 스탯 초기화 (원치 않으면 아래 perm 라인만 삭제하세요)
+    rebirth++; // 환생 횟수 증가
+    
+    // 1. 게임 내 핵심 수치 초기화
+    gold = 0; 
+    stage = 1;
+    exp = 0;
+    level = 1;
+    
+    // 2. 상점 영구 스탯 초기화
     perm = { atk: 0, hp: 0, spd: 0, reg: 0 }; 
     
-    save(); // 변경사항 저장
-    location.reload(); // 페이지 새로고침으로 데이터 적용
+    // 3. 플레이어 스탯 재계산 (기본값으로)
+    // 이 부분은 귀하의 게임 엔진 설정에 따라 이름이 다를 수 있습니다.
+    // 보통 initGame() 또는 resetPlayer() 같은 함수가 있다면 여기서 호출하세요.
+    
+    save();          // 변경된 환생 횟수 저장
+    updateMenuUI();  // 메뉴 UI 업데이트
+    
+    alert("환생 완료! 메뉴에서 '진화 시작'을 눌러주세요.");
 }
-        }
+        
 
         function startGame() {
             document.getElementById('start-menu').style.display = 'none';
@@ -580,6 +592,7 @@ function executeRebirth() {
 </body>
 
 </html>
+
 
 
 
