@@ -107,30 +107,7 @@
             </div>
         </div>
     </div>
-// 진화 상점 (V10: 클래스 시스템 통합)
-        function showShop() {
-            gameRunning = false;
-            const shopDiv = document.getElementById('ingame-shop');
-            const optionsDiv = document.getElementById('shop-options');
-            shopDiv.style.display = 'flex';
-            
-            // 스테이지 2 클리어 시 클래스 선택
-            if(stage === 2) {
-                document.getElementById('shop-title').innerText = "클래스 전직";
-                optionsDiv.innerHTML = `
-                    <div class="shop-item" onclick="evolve('sniper')">🔫 스나이퍼 (한방, 관통, 초고속)</div>
-                    <div class="shop-item" onclick="evolve('gatling')">🌪️ 개틀링 (연사, 산탄)</div>
-                    <div class="shop-item" onclick="evolve('destroyer')">💣 디스트로이어 (거대 탄환, 범위)</div>
-                `;
-            } else {
-                document.getElementById('shop-title').innerText = "능력 강화";
-                optionsDiv.innerHTML = `
-                    <div class="shop-item" onclick="evolve('multi')">✨ 멀티샷 +1</div>
-                    <div class="shop-item" onclick="evolve('damage')">⚔️ 공격력 +40%</div>
-                    <div class="shop-item" onclick="evolve('heal')">❤️ 완전 회복 & 최대체력 UP</div>
-                `;
-            }
-        }
+
 
     <script>
         const { Engine, Render, Runner, Bodies, Composite, Vector, Body, Events } = Matter;
