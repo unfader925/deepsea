@@ -914,6 +914,29 @@
         Render.run(render);
 
         load(); gameLoop();
+     // ... (기존 코드 생략) ...
+
+        window.addEventListener('mousemove', e => mousePos = {x:e.clientX, y:e.clientY});
+
+        // --- 이 부분을 아래와 같이 확실하게 수정하세요 ---
+
+        // 1. 렌더러 실행
+        Render.run(render);
+
+        // 2. 러너 생성 및 실행 (물리 엔진 구동)
+        const runner = Runner.create();
+        Runner.run(runner, engine);
+
+        // 3. 데이터 로드 및 루프 시작
+        load(); 
+        gameLoop();
+
+        // 4. 화면 크기 대응 (추가하면 좋음)
+        window.addEventListener('resize', () => {
+            render.canvas.width = window.innerWidth;
+            render.canvas.height = window.innerHeight;
+        });
+    
 
     </script>
 
@@ -934,3 +957,4 @@
 
 
 </html>
+
