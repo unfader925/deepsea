@@ -75,12 +75,20 @@
                 <div class="shop-item" id="buy-hp" onclick="buyPerm('hp')">체력 Lv.0</div>
                 <div class="shop-item" id="buy-spd" onclick="buyPerm('spd')">이동 속도 Lv.0</div>
                 <div class="shop-item" id="buy-reg" onclick="buyPerm('reg')">자동 회복 Lv.0</div>
+                 <div id="advanced-shop" style="display:none; grid-column: 1 / span 2; margin-top: 15px; border-top: 1px solid #444; pt: 10px;">
+    <p style="color:#00f2fe; font-size:14px;">[심해 상점 - 6R 돌파 기념 오픈]</p>
+    <div class="shop-grid">
+        <div class="shop-item" id="buy-crit" onclick="buyPerm('crit')">치명타율 Lv.0</div>
+        <div class="shop-item" id="buy-gold" onclick="buyPerm('goldUp')">골드 획득 Lv.0</div>
+    </div>
+</div>
             </div>
             <p id="menu-gold" style="color:gold; margin-top:20px; font-size: 20px;">GOLD: 0</p>
             <button class="btn" onclick="startGame()">진화 시작</button>
             <button id="rebirth-btn" class="btn btn-rebirth" style="display:none;" onclick="applyRebirth()">환생하기 (스탯 리셋 & 골드 x2)</button>
         </div>
     </div>
+
      
     <div id="ingame-shop" class="overlay" style="display:none;">
         <div class="card">
@@ -116,26 +124,7 @@ function updateRankings(newScore) {
     displayRankings();
 }
 
-function displayRankings() {
-    console.log("=== 심해 랭킹 ===");
-    rankings.forEach((r, i) => console.log(`${i+1}위: ${r.name} - ${r.score}G`));
-    // 이 데이터를 UI에 뿌려주는 코드를 추가하면 더 좋습니다.
-}
-         function evolve(type) {
-    // ... 기존 스탯 상승 코드 ...
-    stage++; 
-    document.getElementById('ingame-shop').style.display = 'none';
-    
-    if(stage <= 10) { // 6에서 10으로 변경
-        initStage(); 
-        gameRunning = true; 
-    } else {
-        gameRunning = false;
-        updateRankings(gold); // 게임 클리어 시 랭킹 등록
-        document.getElementById('stage-popup').innerText = "전설의 레비아탄을 굴복시켰습니다!";
-        // ... 메뉴로 돌아가는 코드 ...
-    }
-}
+
         // --- 배경 기포 시스템 ---
         const bubbles = [];
         for(let i=0; i<40; i++) {
@@ -179,11 +168,12 @@ function displayRankings() {
         let player, boss, stage = 1, gold = 0, gameRunning = false, isBoss = false;
         let pStats = { hp: 100, maxHp: 100, atk: 30, spd: 7, multi: 1, inv: false, reg: 0 };
         // [신규] spd(속도), reg(회복) 영구 스탯 추가
-        let perm = { atk: 0, hp: 0, spd: 0, reg: 0 }, rebirth = 0;
+        let perm = { atk: 0, hp: 0, spd: 0, reg: 0, crit: 0, goldUp: 0 }, rebirth = 0;
         let survival = 0, skillCool = 0, frame = 0;
         let keys = {}, isFiring = false, mousePos = {x:0, y:0};
         let homingBullets = [];
         let bossPhase = 0;
+         
 
         function save() { localStorage.setItem('ocean_save_v9', JSON.stringify({ gold, perm, rebirth })); }
         function load() {
@@ -206,16 +196,28 @@ function displayRankings() {
             const updateBtn = (id, type, baseCost, incCost, name) => {
                 const cost = baseCost + (perm[type] * incCost);
                 const btn = document.getElementById(id);
-                if(perm[type] >= 5) { btn.innerText = `${name} Lv.MAX`; btn.className = "shop-item max"; }
+                if(perm[type] >= 7) { btn.innerText = `${name} Lv.MAX`; btn.className = "shop-item max"; }
                 else { btn.innerText = `${name} Lv.${perm[type]} (${cost}G)`; btn.className = "shop-item"; }
             };
-
-            updateBtn('buy-atk', 'atk', 1000, 500, "공격력");
-            updateBtn('buy-hp', 'hp', 1000, 500, "체력");
-            updateBtn('buy-spd', 'spd', 1500, 1000, "속도");
+// 6라운드 넘거나 환생 경험이 있다면 고급 상점 오픈
+if (stage > 6 || rebirth > 0) {
+    document.getElementById('advanced-shop').style.display = 'block';
+    
+    // 고급 상점 버튼 업데이트
+    updateBtn('buy-crit', 'crit', 5000, 2500, "치명타율");
+    updateBtn('buy-gold', 'goldUp', 4000, 2000, "추가 골드");
+}
+            updateBtn('buy-atk', 'atk', 1000, 1000, "공격력");
+            updateBtn('buy-hp', 'hp', 1000, 1000, "체력");
+            updateBtn('buy-spd', 'spd', 1500, 15000, "속도");
             updateBtn('buy-reg', 'reg', 3000, 2000, "회복");
-            if(stage > 6 || rebirth > 0) document.getElementById('rebirth-btn').style.display = 'block';
+if (stage > 6 || rebirth > 0) {
+    const rBtn = document.getElementById('rebirth-btn');
+    rBtn.style.display = 'block';
+    rBtn.innerText = `환생하기 (현재 최고 기록: Stage ${stage-1}) \n ※ 환생 시 골드 2배 & 7~10라운드 도전 가능!`;
+}
         }
+         
         function buyPerm(type) {
             if(perm[type] >= 5) return;
             const base = (type === 'spd') ? 1500 : (type === 'reg' ? 3000 : 1000);
@@ -237,7 +239,8 @@ function displayRankings() {
             pStats.maxHp = 100 + (perm.hp * 60);
             pStats.spd = 7 + (perm.spd * 0.8); // 속도 업그레이드 반영
             pStats.reg = perm.reg * 0.5; // 레벨당 0.5 회복 (프레임 단위라 누적됨)
-           
+            pStats.critRate = perm.crit * 0.05; // 레벨당 5% 치명타율
+    pStats.goldBonus = 1 + (perm.goldUp * 0.2); // 레벨당 20% 골드 보너스
             pStats.hp = pStats.maxHp; pStats.multi = 1;
             initStage(); gameRunning = true;
         }
@@ -573,6 +576,7 @@ window.addEventListener('resize', () => {
 </body>
 
 </html>
+
 
 
 
