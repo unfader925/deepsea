@@ -102,6 +102,24 @@
                 wireframes: false, background: '#00050a' // 매우 어두운 심해 색
             } 
         });
+
+         // 랭킹 저장 및 불러오기
+let rankings = JSON.parse(localStorage.getItem('ocean_rankings')) || [];
+
+function updateRankings(newScore) {
+    const name = prompt("신기록 달성! 이름을 입력하세요:", "심해탐험가") || "무명";
+    rankings.push({ name, score: newScore, date: new Date().toLocaleDateString() });
+    rankings.sort((a, b) => b.score - a.score); // 높은 점수 순
+    rankings = rankings.slice(0, 5); // 상위 5명만 유지
+    localStorage.setItem('ocean_rankings', JSON.stringify(rankings));
+    displayRankings();
+}
+
+function displayRankings() {
+    console.log("=== 심해 랭킹 ===");
+    rankings.forEach((r, i) => console.log(`${i+1}위: ${r.name} - ${r.score}G`));
+    // 이 데이터를 UI에 뿌려주는 코드를 추가하면 더 좋습니다.
+}
         // --- 배경 기포 시스템 ---
         const bubbles = [];
         for(let i=0; i<40; i++) {
@@ -532,11 +550,14 @@ window.addEventListener('resize', () => {
     <a href="updates.html">업데이트 소식</a> | 
     <a href="privacy.html">개인정보 처리방침</a>
 
+         
+
 </footer>
 
 </body>
 
 </html>
+
 
 
 
