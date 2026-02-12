@@ -136,7 +136,11 @@
             3: { name: "복어", color: '#f1c40f', bColor: '#d35400', bName: "맹독 복어왕", skill: "가시 지옥 (60발 유도 + 1초 무적)" },
             4: { name: "상어", color: '#bdc3c7', bColor: '#34495e', bName: "메갈로돈", skill: "크림슨 바이트 (레이저 + 1초 무적)" },
             5: { name: "대왕오징어", color: '#9b59b6', bColor: '#8e44ad', bName: "크라켄", skill: "심해 먹물 (슬로우 + 1초 무적)" },
-            6: { name: "대왕고래", color: '#3498db', bColor: '#2980b9', bName: "모비딕", skill: "고래의 노래 (광역기 + 1초 무적)" }
+            6: { name: "대왕고래", color: '#3498db', bColor: '#2980b9', bName: "모비딕", skill: "고래의 노래 (광역기 + 1초 무적)" },
+            7: { name: "고대 상어", color: '#4b6584', bColor: '#2f3542', bName: "메갈로돈", skill: "고대 포효 (전막 제거)" },
+            8: { name: "해룡", color: '#20bf6b', bColor: '#26de81', bName: "모사사우르스", skill: "심해 매복 (은신/무적)" },
+            9: { name: "심해 괴물", color: '#a55eea', bColor: '#8854d0', bName: "크라켄", skill: "심연의 촉수 (자동 타격)" },
+           10: { name: "신화의 존재", color: '#eb3b5a', bColor: '#ff3f34', bName: "레비아탄", skill: "종말의 빛 (최종병기)" }
         };
         let player, boss, stage = 1, gold = 0, gameRunning = false, isBoss = false;
         let pStats = { hp: 100, maxHp: 100, atk: 30, spd: 7, multi: 1, inv: false, reg: 0 };
@@ -358,6 +362,29 @@
                         }
                     }
                     break;
+                      // switch(stage) 내부 맨 밑에 추가
+case 7: // 메갈로돈: 엄청난 속도로 돌진하며 탄막 난사
+    const mAngle = Vector.angle(boss.position, player.position);
+    Body.setVelocity(boss, { x: Math.cos(mAngle)*15, y: Math.sin(mAngle)*15 });
+    if(bossPhase % 15 === 0) createBullet(boss.position.x, boss.position.y, Math.cos(mAngle+1)*10, Math.sin(mAngle+1)*10, '#ff4757');
+    break;
+case 8: // 모사사우르스: 투명해졌다가 갑자기 나타나 탄막 발사
+    if(bossPhase % 200 < 100) { boss.render.opacity = 0.1; pStats.inv = false; } 
+    else { boss.render.opacity = 1; if(bossPhase % 5 === 0) spawnAimedBullet(); }
+    break;
+case 9: // 크라켄: 8방향으로 거대 탄막 발사 및 플레이어 흡입
+    Body.applyForce(player, player.position, Vector.mult(Vector.normalise(Vector.sub(boss.position, player.position)), 0.005));
+    if(bossPhase % 40 === 0) {
+        for(let i=0; i<16; i++) createBullet(boss.position.x, boss.position.y, Math.cos(i)*12, Math.sin(i)*12, '#a55eea');
+    }
+    break;
+case 10: // 레비아탄: 화면 전체에 무작위 레이저와 유도탄
+    if(bossPhase % 60 === 0) {
+        const laser = Bodies.rectangle(window.innerWidth/2, Math.random()*window.innerHeight, window.innerWidth, 50, { isSensor:true, isStatic:true, render:{fillStyle:'#ff3f34'} });
+        Composite.add(engine.world, laser); setTimeout(()=>Composite.remove(engine.world, laser), 500);
+    }
+    if(bossPhase % 20 === 0) spawnAimedBullet();
+    break;
             }
         }
         function createBullet(x, y, vx, vy, color, label='eb') {
@@ -510,6 +537,7 @@ window.addEventListener('resize', () => {
 </body>
 
 </html>
+
 
 
 
