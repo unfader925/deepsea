@@ -81,6 +81,7 @@
             <button id="rebirth-btn" class="btn btn-rebirth" style="display:none;" onclick="applyRebirth()">환생하기 (스탯 리셋 & 골드 x2)</button>
         </div>
     </div>
+     
     <div id="ingame-shop" class="overlay" style="display:none;">
         <div class="card">
             <h2 style="color:yellow">진화 선택</h2>
@@ -119,6 +120,21 @@ function displayRankings() {
     console.log("=== 심해 랭킹 ===");
     rankings.forEach((r, i) => console.log(`${i+1}위: ${r.name} - ${r.score}G`));
     // 이 데이터를 UI에 뿌려주는 코드를 추가하면 더 좋습니다.
+}
+         function evolve(type) {
+    // ... 기존 스탯 상승 코드 ...
+    stage++; 
+    document.getElementById('ingame-shop').style.display = 'none';
+    
+    if(stage <= 10) { // 6에서 10으로 변경
+        initStage(); 
+        gameRunning = true; 
+    } else {
+        gameRunning = false;
+        updateRankings(gold); // 게임 클리어 시 랭킹 등록
+        document.getElementById('stage-popup').innerText = "전설의 레비아탄을 굴복시켰습니다!";
+        // ... 메뉴로 돌아가는 코드 ...
+    }
 }
         // --- 배경 기포 시스템 ---
         const bubbles = [];
@@ -320,7 +336,7 @@ function displayRankings() {
                     y: 150 + Math.sin(bossPhase/15) * 60
                 });
             }
-            const difficultyMult = stage === 1 ? 1 : 1.8; 
+            const difficultyMult = stage === 1 ? 1 : 1.12; 
             switch(stage) {
                 case 1: 
                     if(bossPhase % 20 === 0) createBullet(boss.position.x, boss.position.y, (Math.random()-0.5)*10, 8, '#ffff00');
@@ -557,6 +573,7 @@ window.addEventListener('resize', () => {
 </body>
 
 </html>
+
 
 
 
