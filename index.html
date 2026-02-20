@@ -334,7 +334,7 @@ if (stage > 6 || rebirth > 0) {
         function updateBossUniquePattern() {
             if(!boss) return;
             bossPhase++;
-            if(stage !== 4) {
+            if(stage !== 4 && stage !== 7) {
                 Body.setPosition(boss, {
                     x: window.innerWidth/2 + Math.sin(bossPhase/50) * 350,
                     y: 150 + Math.sin(bossPhase/15) * 60
@@ -420,7 +420,7 @@ case 7: // 메갈로돈: 끔찍한 추격 + 부채꼴 유도탄 + 지뢰 깔기
     break;
 
 case 8: // 모사사우르스 (기존 유지하되 유도탄 주기 감소)
-    if(bossPhase % 200 < 100) { boss.render.opacity = 0.1; pStats.inv = false; } 
+    if(bossPhase % 200 < 100) { boss.render.opacity = 0.1; } 
     else { boss.render.opacity = 1; if(bossPhase % 3 === 0) spawnAimedBullet(); }
     break;
 case 9: // 크라켄: 당황스러운 블랙홀 흡입 + 거대 8방향 탄막
@@ -535,11 +535,14 @@ case 10: // 레비아탄: 화면 40% 차지 초거대 레이저 + 유도탄 난�
             } else if(stage === 5) { Composite.allBodies(engine.world).forEach(b => { if(b.label==='eb') Body.setVelocity(b, Vector.mult(b.velocity, 0.05)); }); }
             else if(stage === 6) { if(boss) boss.hp -= 10000; Composite.allBodies(engine.world).forEach(b => { if(b.label==='eb') Composite.remove(engine.world, b); }); }
 
-
-             else if(stage === 7) { 
-        // 7라운드: 엄청난 속도로 마우스 방향 돌진하며 사방으로 탄막 30발 난사
+                  else if(stage === 7) { 
+        // [수정 3] 키보드 입력과 겹치지 않게 순간이동(Blink) 형식으로 마우스 방향 돌진!
         const dashAngle = Vector.angle(player.position, mousePos);
-        Body.setVelocity(player, { x: Math.cos(dashAngle)*30, y: Math.sin(dashAngle)*30 });
+        const dashDist = 250; // 점멸 거리
+        Body.setPosition(player, {
+            x: Math.min(Math.max(player.position.x + Math.cos(dashAngle)*dashDist, 22), window.innerWidth - 22),
+            y: Math.min(Math.max(player.position.y + Math.sin(dashAngle)*dashDist, 22), window.innerHeight - 22)
+        });
         
         for(let i=0; i<30; i++) {
             const b = Bodies.circle(player.position.x, player.position.y, 8, { label:'pb', isSensor:true, render:{fillStyle:'#2f3542'} });
@@ -548,7 +551,7 @@ case 10: // 레비아탄: 화면 40% 차지 초거대 레이저 + 유도탄 난�
             Composite.add(engine.world, b);
             setTimeout(()=>Composite.remove(engine.world, b), 1500);
         }
-    } 
+    }
     else if(stage === 8) { 
         // 8라운드: 2초간 투명(무적)+속도 2배 증가, 기관총처럼 다량의 탄막 발사
         const originalSpd = pStats.spd;
@@ -698,6 +701,7 @@ window.addEventListener('resize', () => {
 </body>
 
 </html>
+
 
 
 
