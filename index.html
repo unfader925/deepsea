@@ -402,16 +402,33 @@ if (stage > 6 || rebirth > 0) {
                     break;
                       // switch(stage) 내부 맨 밑에 추가
 case 7: 
-            const mAngle = Vector.angle(boss.position, player.position);
-            Body.setVelocity(boss, { x: Math.cos(mAngle)*15, y: Math.sin(mAngle)*15 });
-            if(bossPhase % 30 === 0) {
-                for(let i = -2; i <= 2; i++) {
-                    const b = createBullet(boss.position.x, boss.position.y, Math.cos(mAngle + i*0.2)*12, Math.sin(mAngle + i*0.2)*12, '#ff4757', 'eb');
-                    homingBullets.push({ body: b }); 
-                }
-            }
-            if(bossPhase % 10 === 0) createBullet(boss.position.x, boss.position.y, 0, 0, '#c0392b'); 
-            break;
+    const mAngle = Vector.angle(boss.position, player.position);
+    
+    // 1. setVelocity 대신 setPosition을 써서 고정 상태(isStatic)라도 강제로 쫓아오게 만듭니다.
+    // 속도가 너무 빠르면 억울하게 죽으니 5 정도로 맞췄습니다. (필요하면 숫자 조절하세요!)
+    Body.setPosition(boss, { 
+        x: boss.position.x + Math.cos(mAngle) * 5, 
+        y: boss.position.y + Math.sin(mAngle) * 5 
+    });
+
+    // 2. 부채꼴 유도탄 발사
+    if(bossPhase % 30 === 0) {
+        for(let i = -2; i <= 2; i++) {
+            // 보스의 정중앙이 아니라, 보스가 바라보는 앞쪽으로 살짝 튀어나온 곳에서 발사되게 위치 조정
+            const spawnX = boss.position.x + Math.cos(mAngle) * 60;
+            const spawnY = boss.position.y + Math.sin(mAngle) * 60;
+            
+            const b = createBullet(spawnX, spawnY, Math.cos(mAngle + i*0.2)*12, Math.sin(mAngle + i*0.2)*12, '#ff4757', 'eb');
+            homingBullets.push({ body: b }); 
+        }
+    }
+
+    // 3. 지뢰 깔기 (이제 보스가 움직이므로 제자리에 안 겹치고 멋지게 흔적을 남깁니다)
+    // 너무 촘촘하면 피하기 힘드니 10프레임 -> 15프레임으로 살짝 늦췄습니다.
+    if(bossPhase % 15 === 0) { 
+        createBullet(boss.position.x, boss.position.y, 0, 0, '#c0392b'); 
+    }
+    break;
         case 8: 
             // [수정 2] 유저 무적을 풀던 로직 삭제 및 보스 위치에서 유도탄 쏘도록 정상화
             if(bossPhase % 200 < 100) { 
@@ -540,7 +557,7 @@ case 7:
             y: Math.min(Math.max(player.position.y + Math.sin(dashAngle)*dashDist, 22), window.innerHeight - 22)
         });
         
-        for(let i=0; i<30; i++) {
+        for(let i=0; i<60; i++) {
             const b = Bodies.circle(player.position.x, player.position.y, 8, { label:'pb', isSensor:true, render:{fillStyle:'#2f3542'} });
             const a = (Math.PI*2/30)*i;
             Body.setVelocity(b, {x:Math.cos(a)*18, y:Math.sin(a)*18});
@@ -687,6 +704,7 @@ window.addEventListener('resize', () => {
 </body>
 
 </html>
+
 
 
 
