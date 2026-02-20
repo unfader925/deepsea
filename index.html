@@ -400,27 +400,66 @@ if (stage > 6 || rebirth > 0) {
                     }
                     break;
                       // switch(stage) 내부 맨 밑에 추가
-case 7: // 메갈로돈: 엄청난 속도로 돌진하며 탄막 난사
+case 7: // 메갈로돈: 끔찍한 추격 + 부채꼴 유도탄 + 지뢰 깔기
     const mAngle = Vector.angle(boss.position, player.position);
+    // 항상 플레이어 쪽으로 무섭게 돌진
     Body.setVelocity(boss, { x: Math.cos(mAngle)*15, y: Math.sin(mAngle)*15 });
-    if(bossPhase % 15 === 0) createBullet(boss.position.x, boss.position.y, Math.cos(mAngle+1)*10, Math.sin(mAngle+1)*10, '#ff4757');
+
+    // 패턴 1: 플레이어를 향해 5발의 유도탄을 부채꼴로 동시 발사
+    if(bossPhase % 30 === 0) {
+        for(let i = -2; i <= 2; i++) {
+            const b = createBullet(boss.position.x, boss.position.y, Math.cos(mAngle + i*0.2)*12, Math.sin(mAngle + i*0.2)*12, '#ff4757', 'eb');
+            homingBullets.push({ body: b }); // 유도탄 배열에 추가
+        }
+    }
+    // 패턴 2: 지나간 자리에 제자리에 멈춰있는 지뢰(탄막) 남기기
+    if(bossPhase % 10 === 0) {
+        createBullet(boss.position.x, boss.position.y, 0, 0, '#c0392b'); 
+    }
     break;
-case 8: // 모사사우르스: 투명해졌다가 갑자기 나타나 탄막 발사
+
+case 8: // 모사사우르스 (기존 유지하되 유도탄 주기 감소)
     if(bossPhase % 200 < 100) { boss.render.opacity = 0.1; pStats.inv = false; } 
-    else { boss.render.opacity = 1; if(bossPhase % 5 === 0) spawnAimedBullet(); }
+    else { boss.render.opacity = 1; if(bossPhase % 3 === 0) spawnAimedBullet(); }
     break;
-case 9: // 크라켄: 8방향으로 거대 탄막 발사 및 플레이어 흡입
-    Body.applyForce(player, player.position, Vector.mult(Vector.normalise(Vector.sub(boss.position, player.position)), 0.005));
-    if(bossPhase % 40 === 0) {
-        for(let i=0; i<16; i++) createBullet(boss.position.x, boss.position.y, Math.cos(i)*12, Math.sin(i)*12, '#a55eea');
+
+case 9: // 크라켄: 당황스러운 블랙홀 흡입 + 거대 8방향 탄막
+    // 패턴 1: 일정 주기(150프레임 중 30프레임)마다 블랙홀처럼 미친듯이 끌어당김
+    if(bossPhase % 150 < 30) {
+        const blackholeForce = Vector.mult(Vector.normalise(Vector.sub(boss.position, player.position)), 0.035);
+        Body.applyForce(player, player.position, blackholeForce);
+    } else {
+        // 평소엔 아주 약한 끌어당김
+        Body.applyForce(player, player.position, Vector.mult(Vector.normalise(Vector.sub(boss.position, player.position)), 0.002));
+    }
+
+    // 패턴 2: 8방향으로 거대 탄막 발사 (크기가 큼)
+    if(bossPhase % 50 === 0) {
+        for(let i=0; i<8; i++) {
+            const angle = (Math.PI / 4) * i + (bossPhase * 0.01);
+            const bigBullet = Bodies.circle(boss.position.x, boss.position.y, 30, { label: 'eb', isSensor: true, frictionAir: 0, render: { fillStyle: '#a55eea' } });
+            Body.setVelocity(bigBullet, { x: Math.cos(angle)*7, y: Math.sin(angle)*7 });
+            Composite.add(engine.world, bigBullet);
+            setTimeout(() => { if(bigBullet) Composite.remove(engine.world, bigBullet); }, 6000);
+        }
     }
     break;
-case 10: // 레비아탄: 화면 전체에 무작위 레이저와 유도탄
-    if(bossPhase % 60 === 0) {
-        const laser = Bodies.rectangle(window.innerWidth/2, Math.random()*window.innerHeight, window.innerWidth, 50, { isSensor:true, isStatic:true, render:{fillStyle:'#ff3f34'} });
-        Composite.add(engine.world, laser); setTimeout(()=>Composite.remove(engine.world, laser), 500);
+
+case 10: // 레비아탄: 화면 40% 차지 초거대 레이저 + 유도탄 난사
+    // 패턴 1: 화면 높이의 40%를 차지하는 즉사급 거대 레이저 무작위 폭격
+    if(bossPhase % 80 === 0) {
+        const laserHeight = window.innerHeight * 0.4; // 화면의 40% 크기
+        const laser = Bodies.rectangle(window.innerWidth/2, Math.random()*window.innerHeight, window.innerWidth, laserHeight, { isSensor:true, isStatic:true, render:{fillStyle:'rgba(255, 63, 52, 0.7)'} });
+        Composite.add(engine.world, laser); 
+        setTimeout(()=>Composite.remove(engine.world, laser), 600); // 0.6초 뒤 사라짐
     }
-    if(bossPhase % 20 === 0) spawnAimedBullet();
+    // 패턴 2: 유도탄을 한 번에 3발씩 끊임없이 쏟아냄
+    if(bossPhase % 15 === 0) {
+        for(let i=0; i<3; i++) {
+            const b = createBullet(boss.position.x + (Math.random()-0.5)*200, boss.position.y - 100, (Math.random()-0.5)*5, Math.random()*5, '#ff3f34', 'eb');
+            homingBullets.push({ body: b });
+        }
+    }
     break;
             }
         }
@@ -497,7 +536,60 @@ case 10: // 레비아탄: 화면 전체에 무작위 레이저와 유도탄
                 Composite.add(engine.world, laser); setTimeout(() => Composite.remove(engine.world, laser), 200);
             } else if(stage === 5) { Composite.allBodies(engine.world).forEach(b => { if(b.label==='eb') Body.setVelocity(b, Vector.mult(b.velocity, 0.05)); }); }
             else if(stage === 6) { if(boss) boss.hp -= 10000; Composite.allBodies(engine.world).forEach(b => { if(b.label==='eb') Composite.remove(engine.world, b); }); }
+
+
+             else if(stage === 7) { 
+        // 7라운드: 엄청난 속도로 마우스 방향 돌진하며 사방으로 탄막 30발 난사
+        const dashAngle = Vector.angle(player.position, mousePos);
+        Body.setVelocity(player, { x: Math.cos(dashAngle)*30, y: Math.sin(dashAngle)*30 });
+        
+        for(let i=0; i<30; i++) {
+            const b = Bodies.circle(player.position.x, player.position.y, 8, { label:'pb', isSensor:true, render:{fillStyle:'#2f3542'} });
+            const a = (Math.PI*2/30)*i;
+            Body.setVelocity(b, {x:Math.cos(a)*18, y:Math.sin(a)*18});
+            Composite.add(engine.world, b);
+            setTimeout(()=>Composite.remove(engine.world, b), 1500);
         }
+    } 
+    else if(stage === 8) { 
+        // 8라운드: 2초간 투명(무적)+속도 2배 증가, 기관총처럼 다량의 탄막 발사
+        const originalSpd = pStats.spd;
+        pStats.spd *= 2; 
+        setTimeout(() => { pStats.spd = originalSpd; }, 2000); // 2초 뒤 속도 원상복구
+
+        // 50발의 탄막을 마우스 방향으로 흩뿌리며 연속 발사
+        for(let i=0; i<50; i++) { 
+            setTimeout(() => {
+                const b = Bodies.circle(player.position.x, player.position.y, 7, { label:'pb', isSensor:true, render:{fillStyle:'#26de81'} });
+                const a = Vector.angle(player.position, mousePos) + (Math.random()-0.5)*0.8; // 약간의 산탄 효과
+                Body.setVelocity(b, {x:Math.cos(a)*25, y:Math.sin(a)*25});
+                Composite.add(engine.world, b);
+                setTimeout(()=>Composite.remove(engine.world, b), 1500);
+            }, i * 20); // 0.02초 간격으로 50발 발사
+        }
+    }
+             else if(stage === 9) { // 심연의 촉수: 보스에게 자동 타격하는 촉수 탄막 20발
+        for(let i=0; i<20; i++) {
+            setTimeout(() => {
+                const b = Bodies.circle(player.position.x, player.position.y, 10, { label:'pb', isSensor:true, render:{fillStyle:'#a55eea'} });
+                Body.setVelocity(b, {x:(Math.random()-0.5)*10, y:(Math.random()-0.5)*10});
+                Composite.add(engine.world, b); homingBullets.push({ body: b });
+                setTimeout(()=>Composite.remove(engine.world, b), 4000);
+            }, i * 50);
+        }
+    }
+             else if(stage === 10) { // 종말의 빛: 화면 전체 폭발 + 보스 대미지
+        if(boss) boss.hp -= pStats.atk * 50; 
+        Composite.allBodies(engine.world).forEach(b => { if(b.label==='eb') Composite.remove(engine.world, b); });
+        // 전체 화면 하얗게 반짝이는 이펙트 (간이 구현)
+        const flash = Bodies.rectangle(window.innerWidth/2, window.innerHeight/2, window.innerWidth, window.innerHeight, { isSensor:true, isStatic:true, render:{fillStyle:'#fff'} });
+        Composite.add(engine.world, flash);
+        setTimeout(() => Composite.remove(engine.world, flash), 300);
+    }
+        }
+
+
+         
         function evolve(type) {
     if(type === 'multi') pStats.multi++; 
     else if(type === 'damage') pStats.atk *= 1.4; 
@@ -599,6 +691,7 @@ window.addEventListener('resize', () => {
 </body>
 
 </html>
+
 
 
 
