@@ -331,138 +331,114 @@ if (stage > 6 || rebirth > 0) {
             requestAnimationFrame(gameLoop);
         }
         function updateBossUniquePattern() {
-            if(!boss) return;
-            bossPhase++;
-            if(stage !== 4) {
-                Body.setPosition(boss, {
-                    x: window.innerWidth/2 + Math.sin(bossPhase/50) * 350,
-                    y: 150 + Math.sin(bossPhase/15) * 60
-                });
+    if (!boss) return;
+    bossPhase++;
+
+    // [이동 로직] 4번(상어), 7번(메갈로돈)은 직접 돌진하므로 기본 이동에서 제외
+    if (stage !== 4 && stage !== 7) {
+        Body.setPosition(boss, {
+            x: window.innerWidth / 2 + Math.sin(bossPhase / 50) * 350,
+            y: 150 + Math.sin(bossPhase / 15) * 60
+        });
+    }
+
+    const difficultyMult = stage === 1 ? 1 : 1.12;
+
+    switch (stage) {
+        case 1: if (bossPhase % 20 === 0) createBullet(boss.position.x, boss.position.y, (Math.random() - 0.5) * 10, 8, '#ffff00'); break;
+        case 2:
+            if (bossPhase % Math.floor(10 / difficultyMult) === 0) {
+                const x = Math.random() * window.innerWidth;
+                const coconut = Bodies.circle(x, -50, 15, { label: 'eb', isSensor: true, render: { fillStyle: '#8d6e63' } });
+                Body.setVelocity(coconut, { x: 0, y: 7 * difficultyMult });
+                Composite.add(engine.world, coconut);
+                setTimeout(() => { if (coconut) Composite.remove(engine.world, coconut) }, 4000);
             }
-            const difficultyMult = stage === 1 ? 1 : 1.12; 
-            switch(stage) {
-                case 1: 
-                    if(bossPhase % 20 === 0) createBullet(boss.position.x, boss.position.y, (Math.random()-0.5)*10, 8, '#ffff00');
-                    break;
-                case 2: 
-                    if(bossPhase % Math.floor(10/difficultyMult) === 0) {
-                        const x = Math.random() * window.innerWidth;
-                        const coconut = Bodies.circle(x, -50, 15, { label:'eb', isSensor:true, frictionAir:0, render:{fillStyle:'#8d6e63'} });
-                        Body.setVelocity(coconut, {x:0, y: 7 * difficultyMult}); 
-                        Composite.add(engine.world, coconut);
-                        setTimeout(()=>{ if(coconut) Composite.remove(engine.world, coconut) }, 4000);
-                    }
-                    break;
-                case 3: 
-                    if(bossPhase % 100 === 0) {
-                        const gas = Bodies.circle(player.position.x, player.position.y, 70, { label:'eb', isSensor:true, isStatic:true, render:{fillStyle:'rgba(0, 255, 0, 0.4)'} });
-                        Composite.add(engine.world, gas);
-                        setTimeout(() => Composite.remove(engine.world, gas), 4000);
-                    }
-                    if(bossPhase % Math.floor(25/difficultyMult) === 0) {
-                        for(let i=0; i<12; i++) {
-                            const a = (Math.PI*2/12)*i + bossPhase;
-                            createBullet(boss.position.x, boss.position.y, Math.cos(a)*9*difficultyMult, Math.sin(a)*9*difficultyMult, '#f1c40f');
-                        }
-                    }
-                    break;
-                case 4: 
-                    const angle = Vector.angle(boss.position, player.position);
-                    const speed = Vector.magnitude(Vector.sub(player.position, boss.position)) > 100 ? 11 * difficultyMult : 0;
-                    Body.setVelocity(boss, { x: Math.cos(angle)*speed, y: Math.sin(angle)*speed });
-                    boss.angle = angle;
-                    if(bossPhase % Math.floor(35/difficultyMult) === 0) createBullet(boss.position.x, boss.position.y, Math.cos(angle)*18, Math.sin(angle)*18, '#c0392b');
-                    break;
-                case 5: 
-                    const cycle = bossPhase % 300;
-                    if(cycle < 150) { 
-                        boss.render.opacity = 1;
-                        if(cycle % 15 === 0) createBullet(boss.position.x, boss.position.y, (Math.random()-0.5)*12, 8, '#000');
-                    } else if(cycle < 250) { 
-                        boss.render.opacity = 0.1;
-                        Body.setPosition(boss, {x: Math.random()*window.innerWidth, y: Math.random()*300});
-                    } else if(cycle === 250) { 
-                        boss.render.opacity = 1;
-                        for(let i=0; i<36; i++) { const a = (Math.PI*2/36)*i; createBullet(boss.position.x, boss.position.y, Math.cos(a)*12, Math.sin(a)*12, '#9b59b6'); }
-                    }
-                    break;
-                case 6: 
-                    Body.applyForce(player, player.position, Vector.mult(Vector.normalise(Vector.sub(boss.position, player.position)), 0.002));
-                    if(bossPhase % 100 === 0) {
-                        const fromLeft = Math.random() > 0.5;
-                        const vx = fromLeft ? 6 : -6;
-                        for(let i=0; i<18; i++) {
-                            const wave = Bodies.rectangle(fromLeft ? -50 : window.innerWidth+50, i*(window.innerHeight/18)+20, 50, 50, { label:'eb', isSensor:true, frictionAir:0, render:{fillStyle:'#3498db'} });
-                            Body.setVelocity(wave, {x: vx, y: 0});
-                            Composite.add(engine.world, wave);
-                            setTimeout(()=>Composite.remove(engine.world, wave), 6000);
-                        }
-                    }
-                    break;
-                      // switch(stage) 내부 맨 밑에 추가
-case 7: // 메갈로돈: 끔찍한 추격 + 부채꼴 유도탄 + 지뢰 깔기
-    const mAngle = Vector.angle(boss.position, player.position);
-    // 항상 플레이어 쪽으로 무섭게 돌진
-    Body.setVelocity(boss, { x: Math.cos(mAngle)*15, y: Math.sin(mAngle)*15 });
-
-    // 패턴 1: 플레이어를 향해 5발의 유도탄을 부채꼴로 동시 발사
-    if(bossPhase % 30 === 0) {
-        for(let i = -2; i <= 2; i++) {
-            const b = createBullet(boss.position.x, boss.position.y, Math.cos(mAngle + i*0.2)*12, Math.sin(mAngle + i*0.2)*12, '#ff4757', 'eb');
-            homingBullets.push({ body: b }); // 유도탄 배열에 추가
-        }
-    }
-    // 패턴 2: 지나간 자리에 제자리에 멈춰있는 지뢰(탄막) 남기기
-    if(bossPhase % 10 === 0) {
-        createBullet(boss.position.x, boss.position.y, 0, 0, '#c0392b'); 
-    }
-    break;
-
-case 8: // 모사사우르스 (기존 유지하되 유도탄 주기 감소)
-    if(bossPhase % 200 < 100) { boss.render.opacity = 0.1; pStats.inv = false; } 
-    else { boss.render.opacity = 1; if(bossPhase % 3 === 0) spawnAimedBullet(); }
-    break;
-
-case 9: // 크라켄: 당황스러운 블랙홀 흡입 + 거대 8방향 탄막
-    // 패턴 1: 일정 주기(150프레임 중 30프레임)마다 블랙홀처럼 미친듯이 끌어당김
-    if(bossPhase % 150 < 30) {
-        const blackholeForce = Vector.mult(Vector.normalise(Vector.sub(boss.position, player.position)), 0.035);
-        Body.applyForce(player, player.position, blackholeForce);
-    } else {
-        // 평소엔 아주 약한 끌어당김
-        Body.applyForce(player, player.position, Vector.mult(Vector.normalise(Vector.sub(boss.position, player.position)), 0.002));
-    }
-
-    // 패턴 2: 8방향으로 거대 탄막 발사 (크기가 큼)
-    if(bossPhase % 50 === 0) {
-        for(let i=0; i<8; i++) {
-            const angle = (Math.PI / 4) * i + (bossPhase * 0.01);
-            const bigBullet = Bodies.circle(boss.position.x, boss.position.y, 30, { label: 'eb', isSensor: true, frictionAir: 0, render: { fillStyle: '#a55eea' } });
-            Body.setVelocity(bigBullet, { x: Math.cos(angle)*7, y: Math.sin(angle)*7 });
-            Composite.add(engine.world, bigBullet);
-            setTimeout(() => { if(bigBullet) Composite.remove(engine.world, bigBullet); }, 6000);
-        }
-    }
-    break;
-
-case 10: // 레비아탄: 화면 40% 차지 초거대 레이저 + 유도탄 난사
-    // 패턴 1: 화면 높이의 40%를 차지하는 즉사급 거대 레이저 무작위 폭격
-    if(bossPhase % 80 === 0) {
-        const laserHeight = window.innerHeight * 0.4; // 화면의 40% 크기
-        const laser = Bodies.rectangle(window.innerWidth/2, Math.random()*window.innerHeight, window.innerWidth, laserHeight, { isSensor:true, isStatic:true, render:{fillStyle:'rgba(255, 63, 52, 0.7)'} });
-        Composite.add(engine.world, laser); 
-        setTimeout(()=>Composite.remove(engine.world, laser), 600); // 0.6초 뒤 사라짐
-    }
-    // 패턴 2: 유도탄을 한 번에 3발씩 끊임없이 쏟아냄
-    if(bossPhase % 15 === 0) {
-        for(let i=0; i<3; i++) {
-            const b = createBullet(boss.position.x + (Math.random()-0.5)*200, boss.position.y - 100, (Math.random()-0.5)*5, Math.random()*5, '#ff3f34', 'eb');
-            homingBullets.push({ body: b });
-        }
-    }
-    break;
+            break;
+        case 3:
+            if (bossPhase % 100 === 0) {
+                const gas = Bodies.circle(player.position.x, player.position.y, 70, { label: 'eb', isSensor: true, isStatic: true, render: { fillStyle: 'rgba(0, 255, 0, 0.4)' } });
+                Composite.add(engine.world, gas);
+                setTimeout(() => Composite.remove(engine.world, gas), 4000);
             }
-        }
+            if (bossPhase % Math.floor(25 / difficultyMult) === 0) {
+                for (let i = 0; i < 12; i++) {
+                    const a = (Math.PI * 2 / 12) * i + bossPhase;
+                    createBullet(boss.position.x, boss.position.y, Math.cos(a) * 9 * difficultyMult, Math.sin(a) * 9 * difficultyMult, '#f1c40f');
+                }
+            }
+            break;
+        case 4: // 상어 돌진
+            const angle4 = Vector.angle(boss.position, player.position);
+            const speed4 = Vector.magnitude(Vector.sub(player.position, boss.position)) > 100 ? 11 * difficultyMult : 0;
+            Body.setVelocity(boss, { x: Math.cos(angle4) * speed4, y: Math.sin(angle4) * speed4 });
+            boss.angle = angle4;
+            if (bossPhase % 35 === 0) createBullet(boss.position.x, boss.position.y, Math.cos(angle4) * 18, Math.sin(angle4) * 18, '#c0392b');
+            break;
+        case 5:
+            const cycle5 = bossPhase % 300;
+            if (cycle5 < 150) { if (cycle5 % 15 === 0) createBullet(boss.position.x, boss.position.y, (Math.random() - 0.5) * 12, 8, '#000'); }
+            else if (cycle5 === 250) { for (let i = 0; i < 36; i++) createBullet(boss.position.x, boss.position.y, Math.cos((Math.PI * 2 / 36) * i) * 12, Math.sin((Math.PI * 2 / 36) * i) * 12, '#9b59b6'); }
+            break;
+        case 6: // 고래 흡입
+            Body.applyForce(player, player.position, Vector.mult(Vector.normalise(Vector.sub(boss.position, player.position)), 0.002));
+            if (bossPhase % 100 === 0) {
+                const fromLeft = Math.random() > 0.5;
+                for (let i = 0; i < 18; i++) {
+                    const wave = Bodies.rectangle(fromLeft ? -50 : window.innerWidth + 50, i * (window.innerHeight / 18) + 20, 50, 50, { label: 'eb', isSensor: true, render: { fillStyle: '#3498db' } });
+                    Body.setVelocity(wave, { x: fromLeft ? 6 : -6, y: 0 });
+                    Composite.add(engine.world, wave);
+                    setTimeout(() => Composite.remove(engine.world, wave), 6000);
+                }
+            }
+            break;
+        case 7: // 메갈로돈: 초고속 돌진 + 부채꼴 유도탄
+            const mAngle = Vector.angle(boss.position, player.position);
+            Body.setVelocity(boss, { x: Math.cos(mAngle) * 16, y: Math.sin(mAngle) * 16 }); // 더 빨라짐
+            if (bossPhase % 25 === 0) { // 플레이어 조준 유도탄 5발
+                for (let i = -2; i <= 2; i++) {
+                    const b = createBullet(boss.position.x, boss.position.y, Math.cos(mAngle + i * 0.2) * 10, Math.sin(mAngle + i * 0.2) * 10, '#ff4757');
+                    homingBullets.push({ body: b });
+                }
+            }
+            break;
+        case 8: // 모사사우르스: 은신 + 유도탄 난사
+            if (bossPhase % 200 < 100) { boss.render.opacity = 0.1; }
+            else { 
+                boss.render.opacity = 1; 
+                if (bossPhase % 5 === 0) { // 유도탄 생성
+                    const b = spawnAimedBullet(); 
+                    if(b) homingBullets.push({ body: b });
+                }
+            }
+            break;
+        case 9: // 크라켄: 블랙홀 흡입 + 거대 탄막
+            const toBoss = Vector.sub(boss.position, player.position);
+            if (bossPhase % 120 < 40) { // 40프레임 동안 강력 흡입
+                Body.applyForce(player, player.position, Vector.mult(Vector.normalise(toBoss), 0.04));
+            }
+            if (bossPhase % 45 === 0) {
+                for (let i = 0; i < 16; i++) {
+                    const b = createBullet(boss.position.x, boss.position.y, Math.cos(i) * 10, Math.sin(i) * 10, '#a55eea');
+                    Body.scale(b, 3, 3); // 진짜 거대 탄막
+                }
+            }
+            break;
+        case 10: // 레비아탄: 화면 40% 레이저 + 유도탄 폭격
+            if (bossPhase % 60 === 0) {
+                const lH = window.innerHeight * 0.4; // 화면 40%
+                const laser = Bodies.rectangle(window.innerWidth / 2, Math.random() * window.innerHeight, window.innerWidth, lH, { isSensor: true, isStatic: true, render: { fillStyle: 'rgba(255, 63, 52, 0.6)' } });
+                Composite.add(engine.world, laser);
+                setTimeout(() => Composite.remove(engine.world, laser), 600);
+            }
+            if (bossPhase % 8 === 0) { // 미친 속도의 유도탄 생성
+                const b = createBullet(boss.position.x, boss.position.y, (Math.random()-0.5)*10, -5, '#ff3f34');
+                homingBullets.push({ body: b });
+            }
+            break;
+    }
+}
+           
         function createBullet(x, y, vx, vy, color, label='eb') {
             const b = Bodies.circle(x, y, 8, { label: label, isSensor: true, frictionAir: 0, friction: 0, render: { fillStyle: color } });
             Body.setVelocity(b, {x: vx, y: vy});
@@ -518,75 +494,67 @@ case 10: // 레비아탄: 화면 40% 차지 초거대 레이저 + 유도탄 난�
             }
         }
         function useSkill() {
-            if(skillCool > 0 || !gameRunning) return;
-            skillCool = 400;
-            if(stage !== 2) { pStats.inv = true; player.render.opacity = 0.5; setTimeout(() => { pStats.inv = false; player.render.opacity = 1; }, 1000); }
-            if(stage === 1) { Composite.allBodies(engine.world).forEach(b => { if(b.label==='eb') Composite.remove(engine.world, b); }); }
-            else if(stage === 2) { pStats.inv = true; player.render.opacity = 0.5; setTimeout(() => { pStats.inv = false; player.render.opacity = 1; }, 3000); }
-            else if(stage === 3) {
-                for(let i=0; i<60; i++) {
-                    const b = Bodies.circle(player.position.x+(Math.random()-0.5)*40, player.position.y+(Math.random()-0.5)*40, 8, { label:'pb', isSensor:true, render:{fillStyle:'#f1c40f'} });
-                    Body.setVelocity(b, {x:Math.cos((Math.PI*2/60)*i)*12, y:Math.sin((Math.PI*2/60)*i)*12});
-                    Composite.add(engine.world, b); homingBullets.push({ body: b });
-                    setTimeout(()=>Composite.remove(engine.world, b), 3500);
-                }
-            } else if(stage === 4) {
-                const angle = Vector.angle(player.position, mousePos);
-                const laser = Bodies.rectangle(player.position.x+Math.cos(angle)*200, player.position.y+Math.sin(angle)*200, 400, 40, { label:'laser', isSensor:true, isStatic:true, angle: angle, render:{fillStyle:'#e74c3c'} });
-                Composite.add(engine.world, laser); setTimeout(() => Composite.remove(engine.world, laser), 200);
-            } else if(stage === 5) { Composite.allBodies(engine.world).forEach(b => { if(b.label==='eb') Body.setVelocity(b, Vector.mult(b.velocity, 0.05)); }); }
-            else if(stage === 6) { if(boss) boss.hp -= 10000; Composite.allBodies(engine.world).forEach(b => { if(b.label==='eb') Composite.remove(engine.world, b); }); }
+    if (skillCool > 0 || !gameRunning) return;
+    skillCool = 400;
 
+    // 기본 무적 (스테이지별 시간 차이)
+    pStats.inv = true;
+    player.render.opacity = 0.5;
+    let invTime = 1000;
+    if (stage === 2) invTime = 3000;
+    if (stage === 8) invTime = 2500; // 8라운드는 은신 스킬이므로 더 김
 
-             else if(stage === 7) { 
-        // 7라운드: 엄청난 속도로 마우스 방향 돌진하며 사방으로 탄막 30발 난사
-        const dashAngle = Vector.angle(player.position, mousePos);
-        Body.setVelocity(player, { x: Math.cos(dashAngle)*30, y: Math.sin(dashAngle)*30 });
-        
-        for(let i=0; i<30; i++) {
-            const b = Bodies.circle(player.position.x, player.position.y, 8, { label:'pb', isSensor:true, render:{fillStyle:'#2f3542'} });
-            const a = (Math.PI*2/30)*i;
-            Body.setVelocity(b, {x:Math.cos(a)*18, y:Math.sin(a)*18});
-            Composite.add(engine.world, b);
-            setTimeout(()=>Composite.remove(engine.world, b), 1500);
+    setTimeout(() => {
+        pStats.inv = false;
+        player.render.opacity = 1;
+    }, invTime);
+
+    // --- 스테이지별 스킬 로직 ---
+    if (stage === 1) { // EMP
+        Composite.allBodies(engine.world).forEach(b => { if (b.label === 'eb') Composite.remove(engine.world, b); });
+    } 
+    else if (stage === 3) { // 가시 지옥
+        for (let i = 0; i < 60; i++) {
+            const b = createBullet(player.position.x, player.position.y, Math.cos((Math.PI * 2 / 60) * i) * 12, Math.sin((Math.PI * 2 / 60) * i) * 12, '#f1c40f', 'pb');
+            homingBullets.push({ body: b });
+            setTimeout(() => Composite.remove(engine.world, b), 3000);
         }
     } 
-    else if(stage === 8) { 
-        // 8라운드: 2초간 투명(무적)+속도 2배 증가, 기관총처럼 다량의 탄막 발사
+    else if (stage === 7) { // 메갈로돈 돌진: 초고속 이동 + 360도 난사
+        const dashAngle = Vector.angle(player.position, mousePos);
+        Body.setVelocity(player, { x: Math.cos(dashAngle) * 35, y: Math.sin(dashAngle) * 35 });
+        for (let i = 0; i < 40; i++) {
+            const b = createBullet(player.position.x, player.position.y, Math.cos(i) * 15, Math.sin(i) * 15, '#fff', 'pb');
+            setTimeout(() => Composite.remove(engine.world, b), 1500);
+        }
+    } 
+    else if (stage === 8) { // 심해 은신: 속도 2.5배 + 기관총 40발
         const originalSpd = pStats.spd;
-        pStats.spd *= 2; 
-        setTimeout(() => { pStats.spd = originalSpd; }, 2000); // 2초 뒤 속도 원상복구
-
-        // 50발의 탄막을 마우스 방향으로 흩뿌리며 연속 발사
-        for(let i=0; i<50; i++) { 
+        pStats.spd *= 2.5;
+        setTimeout(() => { pStats.spd = originalSpd; }, 2500);
+        for (let i = 0; i < 40; i++) {
             setTimeout(() => {
-                const b = Bodies.circle(player.position.x, player.position.y, 7, { label:'pb', isSensor:true, render:{fillStyle:'#26de81'} });
-                const a = Vector.angle(player.position, mousePos) + (Math.random()-0.5)*0.8; // 약간의 산탄 효과
-                Body.setVelocity(b, {x:Math.cos(a)*25, y:Math.sin(a)*25});
-                Composite.add(engine.world, b);
-                setTimeout(()=>Composite.remove(engine.world, b), 1500);
-            }, i * 20); // 0.02초 간격으로 50발 발사
+                const b = createBullet(player.position.x, player.position.y, (Math.random() - 0.5) * 20, (Math.random() - 0.5) * 20, '#26de81', 'pb');
+                const a = Vector.angle(player.position, mousePos) + (Math.random() - 0.5) * 0.5;
+                Body.setVelocity(b, { x: Math.cos(a) * 25, y: Math.sin(a) * 25 });
+            }, i * 20);
         }
-    }
-             else if(stage === 9) { // 심연의 촉수: 보스에게 자동 타격하는 촉수 탄막 20발
-        for(let i=0; i<20; i++) {
-            setTimeout(() => {
-                const b = Bodies.circle(player.position.x, player.position.y, 10, { label:'pb', isSensor:true, render:{fillStyle:'#a55eea'} });
-                Body.setVelocity(b, {x:(Math.random()-0.5)*10, y:(Math.random()-0.5)*10});
-                Composite.add(engine.world, b); homingBullets.push({ body: b });
-                setTimeout(()=>Composite.remove(engine.world, b), 4000);
-            }, i * 50);
+    } 
+    else if (stage === 9) { // 심연의 유도 촉수: 대량의 유도탄
+        for (let i = 0; i < 30; i++) {
+            const b = createBullet(player.position.x, player.position.y, (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10, '#a55eea', 'pb');
+            homingBullets.push({ body: b });
+            setTimeout(() => Composite.remove(engine.world, b), 4000);
         }
-    }
-             else if(stage === 10) { // 종말의 빛: 화면 전체 폭발 + 보스 대미지
-        if(boss) boss.hp -= pStats.atk * 50; 
-        Composite.allBodies(engine.world).forEach(b => { if(b.label==='eb') Composite.remove(engine.world, b); });
-        // 전체 화면 하얗게 반짝이는 이펙트 (간이 구현)
-        const flash = Bodies.rectangle(window.innerWidth/2, window.innerHeight/2, window.innerWidth, window.innerHeight, { isSensor:true, isStatic:true, render:{fillStyle:'#fff'} });
+    } 
+    else if (stage === 10) { // 종말의 빛: 전체 삭제 + 보스 체력 20% 삭제
+        if (boss) boss.hp -= boss.maxHp * 0.2; 
+        Composite.allBodies(engine.world).forEach(b => { if (b.label === 'eb') Composite.remove(engine.world, b); });
+        const flash = Bodies.rectangle(window.innerWidth / 2, window.innerHeight / 2, window.innerWidth, window.innerHeight, { isSensor: true, isStatic: true, render: { fillStyle: '#fff' } });
         Composite.add(engine.world, flash);
-        setTimeout(() => Composite.remove(engine.world, flash), 300);
+        setTimeout(() => Composite.remove(engine.world, flash), 400);
     }
-        }
+}
 
 
          
@@ -691,6 +659,7 @@ window.addEventListener('resize', () => {
 </body>
 
 </html>
+
 
 
 
