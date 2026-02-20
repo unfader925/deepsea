@@ -499,11 +499,32 @@ case 10: // 레비아탄: 화면 전체에 무작위 레이저와 유도탄
             else if(stage === 6) { if(boss) boss.hp -= 10000; Composite.allBodies(engine.world).forEach(b => { if(b.label==='eb') Composite.remove(engine.world, b); }); }
         }
         function evolve(type) {
-            if(type==='multi') pStats.multi++; else if(type==='damage') pStats.atk *= 1.4; else { pStats.maxHp += 150; pStats.hp = pStats.maxHp; }
-            stage++; document.getElementById('ingame-shop').style.display = 'none';
-            if(stage <= 6) { initStage(); gameRunning = true; }
-            else { gameRunning = false; document.getElementById('stage-popup').innerText = "심해 정복 성공!"; document.getElementById('stage-popup').style.display = 'block'; setTimeout(() => { document.getElementById('stage-popup').style.display = 'none'; document.getElementById('start-menu').style.display = 'flex'; updateMenuUI(); }, 3000); }
-        }
+    if(type === 'multi') pStats.multi++; 
+    else if(type === 'damage') pStats.atk *= 1.4; 
+    else { pStats.maxHp += 150; pStats.hp = pStats.maxHp; }
+
+    stage++; // 다음 스테이지로 이동
+    document.getElementById('ingame-shop').style.display = 'none';
+
+    if(stage <= 10) { // ★ 6에서 10으로 수정
+        initStage(); 
+        gameRunning = true; 
+    } else {
+        // 10라운드 최종 클리어 시
+        gameRunning = false;
+        const finalGold = Math.floor(gold);
+        updateRankings(finalGold); // 랭킹 등록 팝업 실행
+        
+        document.getElementById('stage-popup').innerText = "전설의 레비아탄을 굴복시켰습니다!";
+        document.getElementById('stage-popup').style.display = 'block';
+        
+        setTimeout(() => { 
+            document.getElementById('stage-popup').style.display = 'none'; 
+            document.getElementById('start-menu').style.display = 'flex'; 
+            updateMenuUI(); 
+        }, 4000);
+    }
+}
 
         function spawnRecoveryItem() { const item = Bodies.circle(Math.random()*window.innerWidth, Math.random()*window.innerHeight, 15, { label:'item', isSensor:true, render:{fillStyle:'#2ecc71', strokeStyle:'#fff', lineWidth:2} }); Composite.add(engine.world, item); }
 
@@ -578,6 +599,7 @@ window.addEventListener('resize', () => {
 </body>
 
 </html>
+
 
 
 
